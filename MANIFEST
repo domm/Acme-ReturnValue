@@ -1,0 +1,9 @@
+bin/acme_returnvalue.pl
+Build.PL
+Changes
+lib/Acme/ReturnValue.pm
+MANIFEST			This list of files
+META.yml
+t/99_pod.t
+t/99_pod_coverage.t
+t/pms/UseUninstalled.pm

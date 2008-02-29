@@ -9,6 +9,9 @@ my $builder = Module::Build->new(
     dist_version_from   => 'lib/Acme/ReturnValue.pm',
     requires    => {
         'PPI'           => '1.118',
+        'Archive::Any'  => '0.093',
+        'Parse::CPAN::Packages' => '2.26',
+        'Class::Accessor'   => '0.31',
     },
     build_requires  => {
         'Test::Pod'             => '1.14',

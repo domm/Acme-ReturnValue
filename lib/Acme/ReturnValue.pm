@@ -2,7 +2,7 @@
 package Acme::ReturnValue;
 use strict;
 use warnings;
-use version; our $VERSION = version->new( '0.02' );
+use version; our $VERSION = version->new( '0.03' );
 
 use PPI;
 use File::Find;
@@ -100,7 +100,6 @@ sub waste_some_cycles {
         'package' => $this_package,
         'value'   => $return_value,
     };
-    print ".";
     if ($return_value eq '1') {
         push(@{$self->boring},$data);
     }

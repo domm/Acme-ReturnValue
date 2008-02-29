@@ -6,6 +6,12 @@ use version; our $VERSION = version->new( '0.02' );
 
 use PPI;
 use File::Find;
+use Parse::CPAN::Packages;
+use File::Spec::Functions;
+use File::Temp qw(tempdir);
+use File::Path;
+use File::Copy;
+use Archive::Any;
 use base 'Class::Accessor';
 
 __PACKAGE__->mk_accessors(qw(interesting boring failed));
@@ -122,6 +128,38 @@ sub new {
     return $self;
 }
 
+=head3 in_CPAN
+
+=cut
+
+sub in_CPAN {
+    my ($self,$cpan)=@_;
+
+    my $p=Parse::CPAN::Packages->new(catfile($cpan,qw(modules 02packages.details.txt.gz)));
+
+    foreach my $dist (sort {$a->dist cmp $b->dist} $p->latest_distributions) {
+        my $data;
+        my $distfile = catfile($cpan,'authors','id',$dist->prefix);
+        print "$distfile\n";
+        $data->{file}=$distfile;
+        my $dir;
+        eval {
+            $dir = tempdir('/var/tmp/arv_XXXXXX');
+        
+            my $archive=Archive::Any->new($distfile);
+            $archive->extract($dir);
+            $self->in_dir($dir);
+
+        };
+        if ($@) {
+            print $@;
+            $data->{error}=$@;
+            push (@{$self->failed},$data);
+        }
+        rmtree($dir);
+    }
+}
+
 =head3 in_INC
 
     $arv->in_INC;
@@ -143,8 +181,6 @@ sub in_INC {
 
 Collect return values from all F<*.pm> files in C<< $dir >>.
 
-If L<waste_some_cycles> failed, puts information on the failing file into L<failed>.
-
 =cut
 
 sub in_dir {
@@ -157,10 +193,25 @@ sub in_dir {
     },$dir);
 
     foreach my $pm (@pms) {
-        eval { $self->waste_some_cycles($pm) };
-        if ($@) {
-            push (@{$self->failed},{file=>$pm,error=>$@});
-        }
+        $self->in_file($pm);
+    }
+}
+
+=head3 in_file
+
+    $arv->in_file( $some_file );
+
+Collect return value from the passed in file.
+
+If L<waste_some_cycles> failed, puts information on the failing file into L<failed>.
+
+=cut
+
+sub in_file {
+    my ($self,$file)=@_;
+    eval { $self->waste_some_cycles($file) };
+    if ($@) {
+        push (@{$self->failed},{file=>$file,error=>$@});
     }
 }
 

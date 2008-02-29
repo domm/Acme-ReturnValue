@@ -1,16 +1,21 @@
 ---
 name: Acme-ReturnValue
-version: 0.01
+version: 0.02
 author:
-  - 'Thomas Klausner <domm@zsi.at>'
+  - 'Thomas Klausner <domm@cpan.at>'
 abstract: report interesting module return values
 license: perl
 resources:
   license: http://dev.perl.org/licenses/
+requires:
+  PPI: 1.118
+build_requires:
+  Test::Pod: 1.14
+  Test::Pod::Coverage: 1.04
 provides:
   Acme::ReturnValue:
     file: lib/Acme/ReturnValue.pm
-    version: 0.01
+    version: 0.02
 generated_by: Module::Build version 0.280801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

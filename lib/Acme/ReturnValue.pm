@@ -162,7 +162,6 @@ sub in_CPAN {
             push (@{$self->failed},$data);
         }
         rmtree($dir);
-        exit;
     }
 }
 

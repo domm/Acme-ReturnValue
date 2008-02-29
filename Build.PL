@@ -8,7 +8,11 @@ my $builder = Module::Build->new(
     dist_author         => 'Thomas Klausner <domm@cpan.at>',
     dist_version_from   => 'lib/Acme/ReturnValue.pm',
     requires    => {
-        'PPI'   => '1.118',
+        'PPI'           => '1.118',
+    },
+    build_requires  => {
+        'Test::Pod'             => '1.14',
+        'Test::Pod::Coverage'   => '1.04',
     },
 );
 

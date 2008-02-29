@@ -1,5 +1,11 @@
 Changes Acme::ReturnValue
 
+0.04   Sat Mar  1 00:28:16 CET 2008
+    - live from the Dutch Perl Workshop 2008!
+    - in_CPAN now forks a new acme_returnvalue.pl to fight memory 
+      leaks
+      
+
 0.03  Fri Feb 29 14:15:47 CET 2008
     - live from the Dutch Perl Workshop 2008!
     - added tests

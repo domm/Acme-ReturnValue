@@ -2,7 +2,7 @@
 package Acme::ReturnValue;
 use strict;
 use warnings;
-use version; our $VERSION = version->new( '0.03' );
+use version; our $VERSION = version->new( '0.04' );
 
 use PPI;
 use File::Find;
@@ -76,8 +76,10 @@ sub waste_some_cycles {
     my ($self, $file) = @_;
     my $doc = PPI::Document->new($file);
 
-    $doc->prune('PPI::Token::Comment');
-    $doc->prune('PPI::Token::Pod');
+    eval {  # I don't care if that fails...
+        $doc->prune('PPI::Token::Comment');
+        $doc->prune('PPI::Token::Pod');
+    }; 
 
     my @packages=$doc->find('PPI::Statement::Package');
     my $this_package;
@@ -132,9 +134,13 @@ sub new {
 =cut
 
 sub in_CPAN {
-    my ($self,$cpan)=@_;
+    my ($self,$cpan,$out)=@_;
 
     my $p=Parse::CPAN::Packages->new(catfile($cpan,qw(modules 02packages.details.txt.gz)));
+
+    if (!-d $out) {
+        mkpath($out) || die "cannot make dir $out";
+    }
 
     foreach my $dist (sort {$a->dist cmp $b->dist} $p->latest_distributions) {
         my $data;
@@ -147,8 +153,8 @@ sub in_CPAN {
         
             my $archive=Archive::Any->new($distfile);
             $archive->extract($dir);
-            $self->in_dir($dir);
-
+            my $outname=catfile($out,$dist->distvname.".dump");
+            system("$^X $0 --dir $dir > $outname");
         };
         if ($@) {
             print $@;
@@ -156,6 +162,7 @@ sub in_CPAN {
             push (@{$self->failed},$data);
         }
         rmtree($dir);
+        exit;
     }
 }
 

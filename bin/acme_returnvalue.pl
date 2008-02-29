@@ -11,8 +11,8 @@ GetOptions(\%opts,qw(
     dir=s
     file=s
     cpan=s
+    out=s
     report
-    dump
 ));
 
 my $arv=Acme::ReturnValue->new;
@@ -27,7 +27,7 @@ elsif (my $file = $opts{file}) {
     $arv->in_file($dir);
 }
 elsif (my $cpan = $opts{cpan}) {
-    $arv->in_CPAN($cpan)
+    $arv->in_CPAN($cpan, $opts{out} || '.')
 }
 else {
     $arv->in_dir('.');

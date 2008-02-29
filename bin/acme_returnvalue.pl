@@ -1,7 +1,6 @@
 #!perl
 use strict;
 use warnings;
-use 5.010;
 use Acme::ReturnValue;
 
 my $arv=Acme::ReturnValue->new;

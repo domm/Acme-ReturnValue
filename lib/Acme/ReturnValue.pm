@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 package Acme::ReturnValue;
-use 5.010;
 use strict;
 use warnings;
 use version; our $VERSION = version->new( '0.02' );

@@ -3,7 +3,7 @@ package Acme::ReturnValue;
 use 5.010;
 use strict;
 use warnings;
-use version; our $VERSION = version->new( '0.01' );
+use version; our $VERSION = version->new( '0.02' );
 
 use PPI;
 use File::Find;

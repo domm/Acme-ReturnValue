@@ -1,10 +1,10 @@
-#-----------------------------------------------------------------
-# Changes Acme::ReturnValue
-# $Rev: 229 $
-# $Date: 2005-05-24 14:28:11 +0200 (Tue, 24 May 2005) $ 
-#-----------------------------------------------------------------
+Changes Acme::ReturnValue
 
-2005-05-27
-----------
-d: initial release
+0.02   Fri Feb 29 09:22:23 CET 2008
+    - added docs
+    - added lot of helper methods
+    - switched to PPI
+
+0.01    2005-05-27
+    - first draft at Linuxwochen Wien
 

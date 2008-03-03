@@ -13,6 +13,8 @@ use File::Path;
 use File::Copy;
 use Archive::Any;
 use base 'Class::Accessor';
+use URI::Escape;
+use Encode;
 
 __PACKAGE__->mk_accessors(qw(interesting boring failed));
 
@@ -194,6 +196,7 @@ sub in_dir {
     my @pms;
     find(sub {
         return unless /\.pm\z/;
+        return if /^x?t\//;
         push(@pms,$File::Find::name);
     },$dir);
 
@@ -219,6 +222,55 @@ sub in_file {
         push (@{$self->failed},{file=>$file,error=>$@});
     }
 }
+
+sub generate_report_from_dump {
+    my ($self,$in,$out)=@_;
+
+    my @interesting;
+    opendir(DIR,$in) || die "Cannot open dir $in: $!";
+    while (my $file=readdir(DIR)) {
+        next unless $file=~/^(.*)\.dump$/;
+        my $dist=$1;
+
+        my $rv;
+        $rv=do(catfile($in,$file));
+        my $interesting=$rv->interesting;
+        next unless @$interesting > 0;
+        push(@interesting,$interesting);
+    }
+
+    my $now=scalar localtime;
+    print <<"EOHTML";
+<html>
+<head><title>Acme::ReturnValue findings</title>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</head>
+
+<body><h1>Acme::ReturnValue findings</h1>
+
+<p>Acme::ReturnValue: <a href="http://search.cpan.org/dist/Acme-ReturnValue">on CPAN</a> | <a href="http://domm.plix.at/talks/acme_returnvalue.html">talks about it</a><br>
+Contact: domm  AT cpan.org<br>
+Generated: $now
+</p>
+
+<table>
+<tr><td>Module</td><td>Return Value</td></tr>
+EOHTML
+    
+    foreach my $metayay (@interesting) {
+        foreach my $yay (@$metayay) {
+            my $val=$yay->{value};
+            $val=~s/>/&gt;/g;
+            $val=~s/</&lt;/g;
+            print "<tr><td>".$yay->{package}."</td><td>".encode('utf8',decode('latin1',$val))."</td></tr>\n";
+        }
+    }
+
+    print "</table></body></html>";
+
+
+}
+
 
 "let's return a strange value";
 

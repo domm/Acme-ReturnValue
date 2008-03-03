@@ -13,11 +13,16 @@ GetOptions(\%opts,qw(
     cpan=s
     out=s
     report
+    generate_html=s
 ));
 
 my $arv=Acme::ReturnValue->new;
 
-if ($opts{inc}) {
+if (my $dumpdir = $opts{generate_html}) {
+    $arv->generate_report_from_dump($dumpdir);
+    exit;
+} 
+elsif ($opts{inc}) {
     $arv->in_INC();    
 }
 elsif (my $dir = $opts{dir}) {

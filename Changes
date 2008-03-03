@@ -1,5 +1,10 @@
 Changes Acme::ReturnValue
 
+0.05   Mon Mar  3 13:39:58 CET 2008
+    - added generate_report_from_dump to generate a nice HTML page
+    - do not check .pm in t/
+
+
 0.04   Sat Mar  1 00:28:16 CET 2008
     - live from the Dutch Perl Workshop 2008!
     - in_CPAN now forks a new acme_returnvalue.pl to fight memory 

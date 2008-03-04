@@ -1,6 +1,6 @@
 ---
 name: Acme-ReturnValue
-version: 0.03
+version: 0.05
 author:
   - 'Thomas Klausner <domm@cpan.at>'
 abstract: report interesting module return values
@@ -18,7 +18,7 @@ build_requires:
 provides:
   Acme::ReturnValue:
     file: lib/Acme/ReturnValue.pm
-    version: 0.03
+    version: 0.05
 generated_by: Module::Build version 0.280801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

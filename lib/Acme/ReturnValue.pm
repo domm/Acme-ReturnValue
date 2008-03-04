@@ -2,7 +2,7 @@
 package Acme::ReturnValue;
 use strict;
 use warnings;
-use version; our $VERSION = version->new( '0.04' );
+use version; our $VERSION = version->new( '0.05' );
 
 use PPI;
 use File::Find;
@@ -40,13 +40,14 @@ C<Acme::ReturnValue> will list 'interesting' return values of modules.
 
 =head2 METHODS
 
+=cut
+
 =head3 waste_some_cycles
 
     my $data = $arv->waste_some_cycles( '/some/module.pm' );
 
 C<waste_some_cycles> parses the passed in file using PPI. It tries to 
-get the last statement ('PPI::Token::Quote' or 'PPI::Token::Number') 
-and extract it's value.
+get the last statement and extract it's value.
 
 C<waste_some_cycles> returns a hash with following keys
 
@@ -92,13 +93,12 @@ sub waste_some_cycles {
         }
     }
 
-    my @statements = $doc->find(
-        sub { $_[1]->isa('PPI::Token::Quote') || $_[1]->isa('PPI::Token::Number') }
-    );
+    my @significant = grep { _is_code($_) } $doc->schildren();
+    my $match = $significant[-1];
 
-    my $last = pop (@{$statements[0]});
-    my $return_value = $last->content;
-    
+    my $return_value=$match->content;
+    $return_value=~s/;$//;
+
     my $data = {
         'file'    => $file,
         'package' => $this_package,
@@ -111,6 +111,21 @@ sub waste_some_cycles {
         push(@{$self->interesting},$data);
     }
     return $data;
+}
+
+=head4 _is_code
+
+Stolen directly from Perl::Critic::Policy::Modules::RequireEndWithOne
+as suggested by Chris Dolan.
+
+Thanks!
+
+=cut
+
+sub _is_code {
+    my $elem = shift;
+    return ! (    $elem->isa('PPI::Statement::End')
+               || $elem->isa('PPI::Statement::Data'));
 }
 
 =head3 new
@@ -223,8 +238,19 @@ sub in_file {
     }
 }
 
+=head3 generate_report_from_dump
+
+    $arv->generate_report_from_dump($dir);
+
+Get all Dump-Files in C<$dir>, eval them, and generate a HTML page 
+with the results.
+
+Will print directly to STDOUT, because I'm lazy ATM..
+
+=cut
+
 sub generate_report_from_dump {
-    my ($self,$in,$out)=@_;
+    my ($self,$in)=@_;
 
     my @interesting;
     opendir(DIR,$in) || die "Cannot open dir $in: $!";

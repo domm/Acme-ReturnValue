@@ -1,6 +1,10 @@
 Changes Acme::ReturnValue
 
-0.05   Mon Mar  3 13:39:58 CET 2008
+0.05   Tue Mar  4 21:02:14 CET 2008
+    - changed last-statement-finding implementation to the one from
+      Perl::Critic::Policy::Modules::RequireEndWithOne
+      Thanks to Chris Dolan for suggestion this here:
+      http://use.perl.org/comments.pl?sid=38799
     - added generate_report_from_dump to generate a nice HTML page
     - do not check .pm in t/
 

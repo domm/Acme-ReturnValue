@@ -256,6 +256,8 @@ sub generate_report_from_dump {
     opendir(DIR,$in) || die "Cannot open dir $in: $!";
     while (my $file=readdir(DIR)) {
         next unless $file=~/^(.*)\.dump$/;
+        my $size=(stat($file))[7];
+        next if $size > 20000;
         my $dist=$1;
 
         my $rv;

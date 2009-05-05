@@ -10,7 +10,7 @@ my $builder = Module::Build->new(
     requires    => {
         'PPI'           => '1.118',
         'Archive::Any'  => '0.093',
-        'Parse::CPAN::Packages' => '2.26',
+        'Parse::CPAN::Packages' => '2.31',
         'Class::Accessor'   => '0.31',
     },
     build_requires  => {

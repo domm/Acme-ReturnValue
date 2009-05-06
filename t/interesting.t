@@ -1,5 +1,5 @@
 #!perl -T
-use Test::Most tests => 16;
+use Test::Most tests => 12;
 use Acme::ReturnValue;
 
 

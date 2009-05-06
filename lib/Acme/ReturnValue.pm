@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 package Acme::ReturnValue;
+
+use 5.010;
 use strict;
 use warnings;
 use version; our $VERSION = version->new( '0.05' );
@@ -7,16 +9,31 @@ use version; our $VERSION = version->new( '0.05' );
 use PPI;
 use File::Find;
 use Parse::CPAN::Packages;
+use Path::Class qw();
 use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use File::Path;
 use File::Copy;
 use Archive::Any;
-use base 'Class::Accessor';
 use URI::Escape;
 use Encode;
+use Data::Dumper;
 
-__PACKAGE__->mk_accessors(qw(interesting boring failed));
+use Moose;
+with qw(MooseX::Getopt);
+
+has 'interesting' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
+has 'boring' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
+has 'failed' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
+
+has 'inc' => (is=>'ro',isa=>'Bool',default=>0);
+has 'dir' => (is=>'ro',isa=>'Str');
+has 'file' => (is=>'ro',isa=>'Str');
+has 'cpan' => (is=>'ro',isa=>'Str');
+has 'dump_to' => (is=>'ro',isa=>'Str',default=>'returnvalues');
+
+has 'output' => (is=>'ro',isa=>'Str',default=>'dump');
+
 
 $|=1;
 
@@ -41,6 +58,50 @@ C<Acme::ReturnValue> will list 'interesting' return values of modules.
 =head2 METHODS
 
 =cut
+
+=head3 run
+
+run from the commandline (via F<acme_returnvalue.pl>
+
+=cut
+
+sub run {
+    my $self = shift;
+   
+    if ($self->inc) {
+        $self->in_inc;
+    }
+    elsif ($self->dir) {
+        $self->in_dir($self->dir);
+    }
+    elsif ($self->file) {
+        $self->in_file($self->file);
+    }
+    elsif ($self->cpan) {
+        $self->in_CPAN($self->cpan,$self->dump_to);
+        exit;
+    }
+    else {
+        $self->in_dir('.');
+    }
+
+    given ($self->output) {
+        when ('dump') {
+            print Dumper $self->interesting;
+        }
+        when ('report') {
+            my $interesting=$self->interesting;
+            if (@$interesting > 0) {
+                foreach my $cool (@$interesting) {
+                    print $cool->{package} .': '.$cool->{value} ."\n";
+                }
+            }
+            else {
+                print "boring!\n";
+            }
+        }
+    }
+}
 
 =head3 waste_some_cycles
 
@@ -128,24 +189,6 @@ sub _is_code {
                || $elem->isa('PPI::Statement::Data'));
 }
 
-=head3 new
-
-    my $arc = Acme::ReturnValue->new;
-
-Yet another boring constructor;
-
-=cut
-
-sub new {
-    my ($class,$opts) = @_;
-    $opts ||= {};
-    my $self=bless $opts,$class;
-    $self->interesting([]);
-    $self->boring([]);
-    $self->failed([]);
-    return $self;
-}
-
 =head3 in_CPAN
 
 =cut
@@ -171,7 +214,7 @@ sub in_CPAN {
             my $archive=Archive::Any->new($distfile);
             $archive->extract($dir);
             my $outname=catfile($out,$dist->distvname.".dump");
-            system("$^X $0 --dir $dir > $outname");
+            system("$^X $0 --dir $dir --output dump > $outname");
         };
         if ($@) {
             print $@;
@@ -253,16 +296,21 @@ sub generate_report_from_dump {
     my ($self,$in)=@_;
 
     my @interesting;
-    opendir(DIR,$in) || die "Cannot open dir $in: $!";
-    while (my $file=readdir(DIR)) {
+    my $dir = Path::Class::Dir->new($in); 
+    while (my $file=$dir->next) {
         next unless $file=~/^(.*)\.dump$/;
-        my $size=(stat($file))[7];
+        my $stat = $file->stat;
+        
+        my $size=$stat->size || 0;
+        unless ($size) {
+            die $file;
+        }
         next if $size > 20000;
         my $dist=$1;
-
-        my $rv;
-        $rv=do(catfile($in,$file));
-        my $interesting=$rv->interesting;
+    
+        my $VAR1;
+        eval $file->slurp;
+        my $interesting=$VAR1->interesting;
         next unless @$interesting > 0;
         push(@interesting,$interesting);
     }
@@ -281,8 +329,7 @@ Contact: domm  AT cpan.org<br>
 Generated: $now
 </p>
 
-<table>
-<tr><td>Module</td><td>Return Value</td></tr>
+<dl>
 EOHTML
     
     foreach my $metayay (@interesting) {
@@ -290,11 +337,11 @@ EOHTML
             my $val=$yay->{value};
             $val=~s/>/&gt;/g;
             $val=~s/</&lt;/g;
-            print "<tr><td>".$yay->{package}."</td><td>".encode('utf8',decode('latin1',$val))."</td></tr>\n";
+            print "<dt>".$yay->{package}."</dt><dd>".encode('utf8',decode('latin1',$val))."</dd>\n";
         }
     }
 
-    print "</table></body></html>";
+    print "</dl></body></html>";
 
 
 }

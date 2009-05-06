@@ -1,0 +1,17 @@
+babilu_local.pl
+blib
+_build
+Build
+.DS_Store
+inc
+.includepath
+Makefile
+pm_to_blib
+.project
+.settings
+*.swp
+tmp/*
+cover_db
+MANIFEST.bak
+Acme-ReturnValue-*
+META.yml

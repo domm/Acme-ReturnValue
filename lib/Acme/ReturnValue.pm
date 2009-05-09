@@ -33,8 +33,6 @@ has 'file' => (is=>'ro',isa=>'Str');
 has 'cpan' => (is=>'ro',isa=>'Str');
 has 'dump_to' => (is=>'ro',isa=>'Str',default=>'returnvalues');
 
-has 'output' => (is=>'ro',isa=>'Str',default=>'dump');
-
 
 $|=1;
 
@@ -86,21 +84,14 @@ sub run {
         $self->in_dir('.');
     }
 
-    given ($self->output) {
-        when ('dump') {
-            print Dumper $self->interesting;
+    my $interesting=$self->interesting;
+    if (@$interesting > 0) {
+        foreach my $cool (@$interesting) {
+            print $cool->{package} .': '.$cool->{value} ."\n";
         }
-        when ('report') {
-            my $interesting=$self->interesting;
-            if (@$interesting > 0) {
-                foreach my $cool (@$interesting) {
-                    print $cool->{package} .': '.$cool->{value} ."\n";
-                }
-            }
-            else {
-                print "boring!\n";
-            }
-        }
+    }
+    else {
+        print "boring!\n";
     }
 }
 
@@ -162,7 +153,7 @@ sub waste_some_cycles {
     $rv=~s/^return //gi;
 
     return if $rv eq 1;
-say "FOUND SOMETHING";
+    
     my $data = {
         'file'    => $file,
         'package' => $this_package,
@@ -228,8 +219,6 @@ sub in_CPAN {
         };
         if ($@) {
             print $@;
-            $data->{error}=$@;
-            push (@{$self->failed},$data);
         }
         rmtree($dir);
     }
@@ -323,27 +312,28 @@ Will print directly to STDOUT, because I'm lazy ATM..
 =cut
 
 sub generate_report_from_dump {
-    my ($self,$in)=@_;
+    my ($self)=@_;
 
     my @interesting;
-    my $dir = Path::Class::Dir->new($in); 
+    my $dir = Path::Class::Dir->new($self->in); 
+    
+    my %cool_dists;
+    my %bad_dists;
+    my %cool_rvs;
+    #my %authors;
+
     while (my $file=$dir->next) {
-        next unless $file=~/^(.*)\.dump$/;
-        my $stat = $file->stat;
-        
-        my $size=$stat->size || 0;
-        unless ($size) {
-            die $file;
-        }
-        next if $size > 20000;
-        my $dist=$1;
+        next unless $file=~/^(?<dist>.*)\.(?<type>dump|bad)$/;
+        my $dist=$+{dist};
+        my $type=$+{type};
     
         my $VAR1;
         eval $file->slurp;
-        my $interesting=$VAR1->interesting;
-        next unless @$interesting > 0;
-        push(@interesting,$interesting);
+        my $data=$VAR1;
+        say $data->{PPI};
     }
+
+    if (1==2) {
 
     my $now=scalar localtime;
     print <<"EOHTML";
@@ -373,7 +363,7 @@ EOHTML
 
     print "</dl></body></html>";
 
-
+}
 }
 
 

@@ -23,9 +23,10 @@ use Moose;
 with qw(MooseX::Getopt);
 
 has 'interesting' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
-has 'boring' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
+has 'bad' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
 has 'failed' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
 
+has 'quiet' => (is=>'ro',isa=>'Bool',default=>0);
 has 'inc' => (is=>'ro',isa=>'Bool',default=>0);
 has 'dir' => (is=>'ro',isa=>'Str');
 has 'file' => (is=>'ro',isa=>'Str');
@@ -69,7 +70,7 @@ sub run {
     my $self = shift;
    
     if ($self->inc) {
-        $self->in_inc;
+        $self->in_INC;
     }
     elsif ($self->dir) {
         $self->in_dir($self->dir);
@@ -156,22 +157,31 @@ sub waste_some_cycles {
 
     my @significant = grep { _is_code($_) } $doc->schildren();
     my $match = $significant[-1];
+    my $rv=$match->content;
+    $rv=~s/\s*;$//;
+    $rv=~s/^return //gi;
 
-    my $return_value=$match->content;
-    $return_value=~s/;$//;
-
+    return if $rv eq 1;
+say "FOUND SOMETHING";
     my $data = {
         'file'    => $file,
         'package' => $this_package,
-        'value'   => $return_value,
+        'PPI'     => ref $match,
     };
-    if ($return_value eq '1') {
-        push(@{$self->boring},$data);
+
+    my @bad = map { 'PPI::Statement::'.$_} qw(Sub Variable Compound Package Scheduled Include Sub);
+
+    if (ref($match) ~~ @bad) {
+        $data->{'bad'}=$rv;
+        push(@{$self->bad},$data);
     }
+    # __PACKAGE__ ? ->
+    
+
     else {
+        $data->{'value'}=$rv;
         push(@{$self->interesting},$data);
     }
-    return $data;
 }
 
 =head4 _is_code
@@ -205,7 +215,6 @@ sub in_CPAN {
     foreach my $dist (sort {$a->dist cmp $b->dist} $p->latest_distributions) {
         my $data;
         my $distfile = catfile($cpan,'authors','id',$dist->prefix);
-        print "$distfile\n";
         $data->{file}=$distfile;
         my $dir;
         eval {
@@ -213,8 +222,9 @@ sub in_CPAN {
         
             my $archive=Archive::Any->new($distfile);
             $archive->extract($dir);
-            my $outname=catfile($out,$dist->distvname.".dump");
-            system("$^X $0 --dir $dir --output dump > $outname");
+            
+            $self->in_dir($dir,$dist->distvname);
+             
         };
         if ($@) {
             print $@;
@@ -236,7 +246,7 @@ Collect return values from all F<*.pm> files in C<< @INC >>.
 sub in_INC {
     my $self=shift;
     foreach my $dir (@INC) {
-        $self->in_dir($dir);
+        $self->in_dir($dir,"INC_$dir");
     }
 }
 
@@ -249,17 +259,37 @@ Collect return values from all F<*.pm> files in C<< $dir >>.
 =cut
 
 sub in_dir {
-    my ($self,$dir)=@_;
-    
+    my ($self,$dir,$dumpname)=@_;
+    $dumpname ||= $dir;
+    $dumpname=~s/\//_/g;
+
+    say $dumpname unless $self->quiet; 
+
+    $self->interesting([]);
+    $self->bad([]);
     my @pms;
     find(sub {
         return unless /\.pm\z/;
-        return if /^x?t\//;
+        return if $File::Find::dir=~/\/x?t\//;
+        return if $File::Find::dir=~/\/inc\//;
         push(@pms,$File::Find::name);
     },$dir);
 
     foreach my $pm (@pms) {
         $self->in_file($pm);
+    }
+    
+    if ($self->interesting && @{$self->interesting}) {
+        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".dump");
+        my $fh = $dump->openw;
+        say $fh Dumper $self->interesting;
+        close $fh;
+    }
+    if ($self->bad && @{$self->bad}) {
+        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".bad");
+        my $fh = $dump->openw;
+        say $fh Dumper $self->bad;
+        close $fh;
     }
 }
 

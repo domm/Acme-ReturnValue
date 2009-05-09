@@ -123,13 +123,11 @@ sub gen_bad_dists {
     foreach my $type (sort keys %$dists) {
         say $fh "<h3><a name='$type'>$type</a></h3>\n<table>";
         foreach my $dist (sort keys %{$dists->{$type}}) {
-           # say $fh 
-           # $self->_html_dist($dist,$dists->{$type}{$dist},'bad');
+            say $fh 
+            $self->_html_bad_dist($dist,$dists->{$type}{$dist});
 
         }
         say $fh "</table>";
-       # say $type;
-        #say $fh $self->_html_dist($dist,$dists->{$dist});
     }
     
     say $fh "<table>";
@@ -167,6 +165,25 @@ sub _html_cool_dist {
 
 }
 
+sub _html_bad_dist {
+    my ($self, $dist,$report) = @_;
+    my $html;
+
+    foreach my $ele (@$report) {
+        my $val=$ele->{'bad'};
+        $val=~s/>/&gt;/g;
+        $val=~s/</&lt;/g;
+        my $id = $ele->{package};
+        $id=~s/::/_/g;
+        $html.="<tr><td colspan>".$self->_link_dist($dist)."</td>";
+        $html.="<td>".$ele->{package}."</a></td>".
+        q{<td><a href="javascript:void(0)" onclick="$('#}.$id.q{').toggle()">}."show</td></tr>
+        <tr id='$id' style='display:none' ><td></td><td colspan=2>".$val."</td></tr>";
+    }
+    return $html;
+}
+
+
 sub _link_dist {
     my ($self, $dist) = @_;
     return "<a href='http://search.cpan.org/dist/$dist'>$dist</a>";
@@ -179,6 +196,8 @@ sub _html_header {
 <html>
 <head><title>Acme::ReturnValue findings</title>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<script src="jquery-1.3.2.min.js" type="text/javascript"></script>
+
 </head>
 
 <body>

@@ -83,7 +83,9 @@ sub run {
     $self->gen_cool_dists(\%cool_dists); 
     
     $self->gen_bad_dists(\%bad_dists); 
-    
+   
+    $self->gen_index;
+
 }
 
 
@@ -94,6 +96,14 @@ sub gen_cool_dists {
     my $fh = $out->openw;
 
     say $fh $self->_html_header;
+    say $fh <<EOCOOLINTRO;
+<h3>Cool Return Values</h3>
+<p class="content">A list of distribitions with not-boring return 
+values. There still are some false positves hidden in here, which will 
+hopefully be removed. The distributions here are sorted by name.  
+soon.</p>
+EOCOOLINTRO
+    
     say $fh "<table>";
     foreach my $dist (sort keys %$cool) {
         say $fh $self->_html_cool_dist($dist,$cool->{$dist});
@@ -112,7 +122,17 @@ sub gen_bad_dists {
     my $fh = $out->openw;
 
     say $fh $self->_html_header;
-    
+    say $fh <<EOBADINTRO;
+<h3>Bad Return Values</h3>
+
+<p class="content">A list of distributions that don't return a valid 
+return statement. You can consider this distributions buggy. This list 
+is further broken down into the type of <a 
+href="http://search.cpan.org/dist/PPI">PPI::Statement</a> class they 
+return. To view the full bad return value, click on the 
+'show'-link.</p>
+EOBADINTRO
+
     my @bad = sort keys %$dists;
     say $fh "<ul>";
     foreach my $type (@bad) {
@@ -121,7 +141,7 @@ sub gen_bad_dists {
     say $fh "</ul>";
     
     foreach my $type (sort keys %$dists) {
-        say $fh "<h3><a name='$type'>$type</a></h3>\n<table>";
+        say $fh "<h3><a name='$type'>$type</a></h3>\n<table width='100%'>";
         foreach my $dist (sort keys %{$dists->{$type}}) {
             say $fh 
             $self->_html_bad_dist($dist,$dists->{$type}{$dist});
@@ -137,6 +157,34 @@ sub gen_bad_dists {
 
 }
 
+sub gen_index {
+    my $self = shift;
+    my $out = Path::Class::Dir->new($self->out)->file('index.html');
+    my $fh = $out->openw;
+    my $version = Acme::ReturnValue->VERSION;
+
+    say $fh $self->_html_header;
+    say $fh <<EOINDEX;
+
+<p class="content">As you might know, all <a href="http://perl.org">Perl</a> packages are required to end with a true statement, usually '1'. But there are more interesting true values than plain old boring '1'. This site is dedicated to presenting to you those creative, funny, stupid or erroneous return values found on <a href="http://search.cpan.org">CPAN</a>.</p>
+
+<p class="content">This site is created using <a href="http://search.cpan.org/dist/Acme-ReturnValue">Acme::ReturnValue $version</a> by <a href="http://domm.plix.at">Thomas Klausner</a> on irregular intervals (but setting up a cron-job is on the TODO...). There are some <a href="http://domm.plix.at/talks/acme_returnvalue.html">slides of talks</a> available with a tiny bit more background.</p>
+
+<p class="content">At the moment, there are the following reports:
+<ul class="content">
+<li><a href="cool.html">Cool return values</a> - a list of distribitions with not-boring return values. There still are some false positves hidden in here, which will hopefully be removed soon.</li>
+<li><a href="bad.html">Bad return values</a> - a list of distributions that don't return a valid return statement. You can consider this distributions buggy.</li>
+<li>By author - not implemented yet.
+<li>By return value - not implemented yet.
+</ul>
+</p>
+
+EOINDEX
+    say $fh $self->_html_footer;
+    close $fh;
+
+
+}
 
 sub _html_cool_dist {
     my ($self, $dist,$report) = @_;
@@ -175,9 +223,9 @@ sub _html_bad_dist {
         $val=~s/</&lt;/g;
         my $id = $ele->{package};
         $id=~s/::/_/g;
-        $html.="<tr><td colspan>".$self->_link_dist($dist)."</td>";
-        $html.="<td>".$ele->{package}."</a></td>".
-        q{<td><a href="javascript:void(0)" onclick="$('#}.$id.q{').toggle()">}."show</td></tr>
+        $html.="<tr><td colspan width='30%'>".$self->_link_dist($dist)."</td>";
+        $html.="<td width='69%'>".$ele->{package}."</a></td>".
+        q{<td width='1%'><a href="javascript:void(0)" onclick="$('#}.$id.q{').toggle()">}."show</td></tr>
         <tr id='$id' style='display:none' ><td></td><td colspan=2>".$val."</td></tr>";
     }
     return $html;
@@ -197,19 +245,20 @@ sub _html_header {
 <head><title>Acme::ReturnValue findings</title>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
 <script src="jquery-1.3.2.min.js" type="text/javascript"></script>
+<link href="acme_returnvalue.css" rel="stylesheet" type="text/css">
 
 </head>
 
 <body>
-<h1>Acme::ReturnValue</h1>
+<h1 id="top">Acme::ReturnValue</h1>
 
-<ul class="menu">
+<ul id="menu">
 <li><a href="index.html">About</a></li>
 <li><a href="cool.html">Cool return values</a></li>
 <li><a href="by_returnvalue.html">By return value</a></li>
 <li><a href="bad.html">Bad return values</a></li>
 </ul>
-
+</div>
 EOHTMLHEAD
 }
 

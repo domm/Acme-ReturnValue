@@ -65,7 +65,7 @@ sub run {
         my $dist=$+{dist};
         my $type=$+{type};
         $dist=~s/$datadir//;
-
+        $dist=~s/^\///;
         my $VAR1;
         eval $file->slurp;
         my $data=$VAR1;

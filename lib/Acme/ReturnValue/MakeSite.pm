@@ -95,9 +95,11 @@ sub gen_cool_dists {
     my $out = Path::Class::Dir->new($self->out)->file('cool.html');
     my $fh = $out->openw;
 
+    my $count = keys %$cool;
+
     say $fh $self->_html_header;
     say $fh <<EOCOOLINTRO;
-<h3>Cool Return Values</h3>
+<h3>$count Cool Return Values</h3>
 <p class="content">A list of distribitions with not-boring return 
 values. There still are some false positves hidden in here, which will 
 hopefully be removed. The distributions here are sorted by name.  
@@ -136,7 +138,8 @@ EOBADINTRO
     my @bad = sort keys %$dists;
     say $fh "<ul>";
     foreach my $type (@bad) {
-        say $fh "<li><a href='#$type'>$type</li>";
+        my $count = keys %{$dists->{$type}};
+        say $fh "<li><a href='#$type'>$type ($count dists)</li>";
     }
     say $fh "</ul>";
     
@@ -255,7 +258,6 @@ sub _html_header {
 <ul id="menu">
 <li><a href="index.html">About</a></li>
 <li><a href="cool.html">Cool return values</a></li>
-<li><a href="by_returnvalue.html">By return value</a></li>
 <li><a href="bad.html">Bad return values</a></li>
 </ul>
 </div>

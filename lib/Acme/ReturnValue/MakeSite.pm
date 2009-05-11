@@ -70,6 +70,21 @@ sub run {
         eval $file->slurp;
         my $data=$VAR1;
         foreach my $report (@$data) {
+            if (length($report->{package})>40) {
+                my @p=split(/::/,$report->{package});
+                my @lines;
+                my $line = shift(@p);
+                foreach my $frag (@p) {
+                    $line.='::'.$frag;
+                    if (length($line)>40) {
+                        push(@lines,$line);
+                        $line='';
+                    }
+                }
+                
+                push (@lines,$line) if $line;
+                $report->{package}=join("<br>&nbsp;&nbsp;&nbsp;",@lines);
+            }
             if ($report->{value}) {
                 push(@{$cool_dists{$dist}},$report);
                 push(@{$cool_rvs{$report->{value}}},$report);
@@ -87,7 +102,6 @@ sub run {
     $self->gen_index;
 
 }
-
 
 sub gen_cool_dists {
     my ($self, $cool) = @_;
@@ -233,7 +247,6 @@ sub _html_bad_dist {
     }
     return $html;
 }
-
 
 sub _link_dist {
     my ($self, $dist) = @_;

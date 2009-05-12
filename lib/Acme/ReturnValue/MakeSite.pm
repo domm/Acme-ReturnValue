@@ -294,7 +294,7 @@ sub _html_cool_value {
     my $first=1;;
     foreach my $ele (@$report) {
         if ($first) {
-            $html.="<tr><td>$count</td><td>$value</td>";
+            $html.="<tr><td>$value</td><td>$count</td>";
             $first=0;
         }
         else {

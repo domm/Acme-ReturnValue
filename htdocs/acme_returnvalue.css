@@ -23,7 +23,7 @@ body {
   margin:0px;
 }
 
-#menu {
+#menubox {
   border-bottom: 1px solid #000;
   border-left: 1px solid #000; 
   border-right: 1px solid #000;
@@ -32,13 +32,13 @@ body {
   margin:0px;
 }
 
-ul#menu li {
+ul.menu li {
  display: inline;
 }
-ul#menu li:before {
+ul.menu li:before {
  content: ' | ';
 }
-ul#menu li:first-child:before {
+ul.menu li:first-child:before {
  content: '';
 }
 

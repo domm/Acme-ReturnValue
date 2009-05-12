@@ -11,7 +11,7 @@ use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use File::Path;
 use URI::Escape;
-use Encode;
+use Encode qw(from_to);
 use Data::Dumper;
 use Acme::ReturnValue;
 
@@ -70,6 +70,23 @@ sub run {
         eval $file->slurp;
         my $data=$VAR1;
         foreach my $report (@$data) {
+            if ($report->{value}) {
+                $report->{value}=~s/\</&lt;/g;
+                $report->{value}=~s/\>/&gt;/g;
+                from_to($report->{value},'latin1','utf8');
+                if(length($report->{value})>255) {
+                    $report->{value}=substr($report->{value},0,255).'...';
+                }
+            }
+            if ($report->{bad}) {
+                $report->{bad}=~s/\</&lt;/g;
+                $report->{bad}=~s/\>/&gt;/g;
+                from_to($report->{bad},'latin1','utf8');
+                if(length($report->{bad})>255) {
+                    $report->{bad}=substr($report->{bad},0,255).'...';
+                }
+            }
+
             if (length($report->{package})>40) {
                 my @p=split(/::/,$report->{package});
                 my @lines;
@@ -94,9 +111,23 @@ sub run {
             }
         }
     }
-     
-    $self->gen_cool_dists(\%cool_dists); 
     
+    my %by_letter; 
+    foreach my $dist (sort keys %cool_dists) {
+        my $first = uc(substr($dist,0,1));
+        push(@{$by_letter{$first}},$dist);
+    }
+    my $letternav = "<ul class='menu'>";
+    foreach my $letter (sort keys %by_letter) {
+        $letternav.="<li><a href='cool_$letter.html'>$letter</li>";
+    }
+    $letternav.="</ul>";
+    foreach my $letter (sort keys %by_letter) {
+        $self->gen_cool_dists(\%cool_dists,$by_letter{$letter},$letter,$letternav); 
+    }
+   
+    $self->gen_cool_values(\%cool_rvs);
+
     $self->gen_bad_dists(\%bad_dists); 
    
     $self->gen_index;
@@ -104,28 +135,58 @@ sub run {
 }
 
 sub gen_cool_dists {
-    my ($self, $cool) = @_;
+    my ($self, $cool,$dists,$letter,$letternav) = @_;
 
-    my $out = Path::Class::Dir->new($self->out)->file('cool.html');
+    my $out = Path::Class::Dir->new($self->out)->file('cool_'.$letter.'.html');
     my $fh = $out->openw;
 
     my $count = keys %$cool;
 
     say $fh $self->_html_header;
     say $fh <<EOCOOLINTRO;
-<h3>$count Cool Return Values</h3>
+<h3>$count Cool Return Values $letter</h3>
 <p class="content">A list of distribitions with not-boring return 
 values. There still are some false positves hidden in here, which will 
 hopefully be removed. The distributions here are sorted by name.  
 soon.</p>
 EOCOOLINTRO
-    
+   
+    say $fh $letternav;
+
     say $fh "<table>";
-    foreach my $dist (sort keys %$cool) {
+    foreach my $dist (sort @{$dists}) {
         say $fh $self->_html_cool_dist($dist,$cool->{$dist});
     }
     
     say $fh "</table>";
+    say $fh $self->_html_footer;
+    close $fh;
+
+}
+
+sub gen_cool_values {
+    my ($self, $dists) = @_;
+
+    my $out = Path::Class::Dir->new($self->out)->file('values.html');
+    my $fh = $out->openw;
+
+    say $fh $self->_html_header;
+    say $fh <<EOBADINTRO;
+<h3>Cool Return Values</h3>
+<p>
+EOBADINTRO
+    
+    foreach my $rv (sort keys %$dists) {
+        say $fh "$rv<br>";
+        #foreach my $dist (sort keys %{$dists->{$rv}}) {
+        #    say $fh "$rv - $dist<br>";
+            #say $fh 
+            #$self->_html_bad_dist($dist,$dists->{$type}{$dist});
+
+        #}
+    }
+    
+#    say $fh "<table>";
     say $fh $self->_html_footer;
     close $fh;
 
@@ -167,7 +228,6 @@ EOBADINTRO
         say $fh "</table>";
     }
     
-    say $fh "<table>";
     say $fh "</table>";
     say $fh $self->_html_footer;
     close $fh;
@@ -214,8 +274,6 @@ sub _html_cool_dist {
 
     foreach my $ele (@$report) {
         my $val=$ele->{'value'};
-        $val=~s/>/&gt;/g;
-        $val=~s/</&lt;/g;
        
         if ($count>1) {
             $html.="<tr><td class='package'>".$ele->{package}."</td>";
@@ -235,9 +293,7 @@ sub _html_bad_dist {
     my $html;
 
     foreach my $ele (@$report) {
-        my $val=$ele->{'bad'};
-        $val=~s/>/&gt;/g;
-        $val=~s/</&lt;/g;
+        my $val=$ele->{'bad'} || '';
         my $id = $ele->{package};
         $id=~s/::/_/g;
         $html.="<tr><td colspan width='30%'>".$self->_link_dist($dist)."</td>";
@@ -268,7 +324,7 @@ sub _html_header {
 <body>
 <h1 id="top">Acme::ReturnValue</h1>
 
-<ul id="menu">
+<ul id="menubox" class="menu">
 <li><a href="index.html">About</a></li>
 <li><a href="cool.html">Cool return values</a></li>
 <li><a href="bad.html">Bad return values</a></li>

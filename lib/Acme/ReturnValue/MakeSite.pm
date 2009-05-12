@@ -145,10 +145,8 @@ sub gen_cool_dists {
     say $fh $self->_html_header;
     say $fh <<EOCOOLINTRO;
 <h3>$count Cool Return Values $letter</h3>
-<p class="content">A list of distribitions with not-boring return 
-values. There still are some false positves hidden in here, which will 
-hopefully be removed. The distributions here are sorted by name.  
-soon.</p>
+<p class="content">A list of distributions with not-boring return 
+values, sorted by name. </p>
 EOCOOLINTRO
    
     say $fh $letternav;
@@ -173,23 +171,24 @@ sub gen_cool_values {
     say $fh $self->_html_header;
     say $fh <<EOBADINTRO;
 <h3>Cool Return Values</h3>
-<p>
+<p class="content">
+All cool values, sorted by number of occurence in the CPAN.
+</p>
+
+<table>
+<tr><td>#</td><td>Return value</td><td>Package</td></tr>
 EOBADINTRO
     
-    foreach my $rv (sort keys %$dists) {
-        say $fh "$rv<br>";
-        #foreach my $dist (sort keys %{$dists->{$rv}}) {
-        #    say $fh "$rv - $dist<br>";
-            #say $fh 
-            #$self->_html_bad_dist($dist,$dists->{$type}{$dist});
-
-        #}
+    foreach my $rv (
+        map { $_->[1] }
+        sort { $b->[0] <=> $a->[0] }
+        map { [scalar @{$dists->{$_}},$_] } keys %$dists) {
+        say $fh $self->_html_cool_value($rv,$dists->{$rv});
     }
     
-#    say $fh "<table>";
+    say $fh "<table>";
     say $fh $self->_html_footer;
     close $fh;
-
 }
 
 sub gen_bad_dists {
@@ -249,7 +248,8 @@ sub gen_index {
 
 <p class="content">At the moment, there are the following reports:
 <ul class="content">
-<li><a href="cool.html">Cool return values</a> - a list of distribitions with not-boring return values. There still are some false positves hidden in here, which will hopefully be removed soon.</li>
+<li><a href="values.html">Cool values</a> - all cool values, sorted by number of occurence in the CPAN</li>
+<li><a href="cool.html">Cool dists</a> - a list of distributions with not-boring return values. There still are some false positves hidden in here, which will hopefully be removed soon.</li>
 <li><a href="bad.html">Bad return values</a> - a list of distributions that don't return a valid return statement. You can consider this distributions buggy.</li>
 <li>By author - not implemented yet.
 <li>By return value - not implemented yet.
@@ -285,7 +285,25 @@ sub _html_cool_dist {
         $html.="</tr>\n";
     }
     return $html;
+}
 
+sub _html_cool_value {
+    my ($self, $value, $report) = @_;
+    my $html;
+    my $count = @$report;
+    my $first=1;;
+    foreach my $ele (@$report) {
+        if ($first) {
+            $html.="<tr><td>$count</td><td>$value</td>";
+            $first=0;
+        }
+        else {
+            $html.="<tr><td></td><td></td>";
+        }
+        $html.="<td>".$self->_link_search_package($ele->{package})."</td>";
+        $html.="</tr>\n";
+    }
+    return $html;
 }
 
 sub _html_bad_dist {
@@ -309,6 +327,11 @@ sub _link_dist {
     return "<a href='http://search.cpan.org/dist/$dist'>$dist</a>";
 }
 
+sub _link_search_package {
+    my ($self, $package) = @_;
+    return "<a href='http://search.cpan.org/search?query=$package&mode=module'>$package</a>";
+}
+
 sub _html_header {
     my $self = shift;
 
@@ -326,7 +349,8 @@ sub _html_header {
 
 <ul id="menubox" class="menu">
 <li><a href="index.html">About</a></li>
-<li><a href="cool.html">Cool return values</a></li>
+<li><a href="values.html">Cool return values</a></li>
+<li><a href="cool_a.html">Cool dists</a></li>
 <li><a href="bad.html">Bad return values</a></li>
 </ul>
 </div>

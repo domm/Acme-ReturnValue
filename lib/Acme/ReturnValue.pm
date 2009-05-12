@@ -4,7 +4,7 @@ package Acme::ReturnValue;
 use 5.010;
 use strict;
 use warnings;
-use version; our $VERSION = version->new( '0.05' );
+use version; our $VERSION = version->new( '0.06' );
 
 use PPI;
 use File::Find;
@@ -32,7 +32,6 @@ has 'dir' => (is=>'ro',isa=>'Str');
 has 'file' => (is=>'ro',isa=>'Str');
 has 'cpan' => (is=>'ro',isa=>'Str');
 has 'dump_to' => (is=>'ro',isa=>'Str',default=>'returnvalues');
-
 
 $|=1;
 

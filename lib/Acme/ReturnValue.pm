@@ -166,12 +166,14 @@ sub waste_some_cycles {
         $data->{'bad'}=$rv;
         push(@{$self->bad},$data);
     }
-    # __PACKAGE__ ? ->
-    
-
-    else {
+    elsif ($rv =~ /^('|"|\d|qw|qq|q|!|~)/) {
         $data->{'value'}=$rv;
         push(@{$self->interesting},$data);
+    }
+    else {
+        $data->{'bad'}=$rv;
+        $data->{'PPI'}.=" (but very likely crap)";
+        push(@{$self->bad},$data);
     }
 }
 

@@ -176,7 +176,7 @@ All cool values, sorted by number of occurence in the CPAN.
 </p>
 
 <table>
-<tr><td>#</td><td>Return value</td><td>Package</td></tr>
+<tr><td>Return value</td><td>#</td><td>Package</td></tr>
 EOBADINTRO
     
     foreach my $rv (

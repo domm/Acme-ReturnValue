@@ -5,15 +5,12 @@ use 5.010;
 use strict;
 use warnings;
 
-use File::Find;
 use Path::Class qw();
-use File::Spec::Functions;
-use File::Temp qw(tempdir);
-use File::Path;
 use URI::Escape;
 use Encode qw(from_to);
 use Data::Dumper;
 use Acme::ReturnValue;
+use YAML::Any qw(LoadFile);
 
 use Moose;
 with qw(MooseX::Getopt);
@@ -24,16 +21,14 @@ has 'data' => (is=>'ro',isa=>'Str',default=>'returnvalues');
 has 'out' => (is=>'ro',isa=>'Str',default=>'htdocs');
 
 
-$|=1;
-
 =head1 NAME
 
 Acme::ReturnValue::MakeSite - generate some HTML pages
 
 =head1 SYNOPSIS
 
-    use Acme::ReturnValue::MakeSite;
-
+    acme_returnvalue_makesite.pl --data path/to/dir
+    
 =head1 DESCRIPTION
 
 Generate a small site based on the findings of L<Acme::ReturnValue>
@@ -66,9 +61,9 @@ sub run {
         my $type=$+{type};
         $dist=~s/$datadir//;
         $dist=~s/^\///;
-        my $VAR1;
-        eval $file->slurp;
-        my $data=$VAR1;
+        
+        my $data=LoadFile($file->stringify);
+        
         foreach my $report (@$data) {
             if ($report->{value}) {
                 $report->{value}=~s/\</&lt;/g;
@@ -249,7 +244,7 @@ sub gen_index {
 <p class="content">At the moment, there are the following reports:
 <ul class="content">
 <li><a href="values.html">Cool values</a> - all cool values, sorted by number of occurence in the CPAN</li>
-<li><a href="cool.html">Cool dists</a> - a list of distributions with not-boring return values. There still are some false positves hidden in here, which will hopefully be removed soon.</li>
+<li><a href="cool_A.html">Cool dists</a> - a list of distributions with not-boring return values. There still are some false positves hidden in here, which will hopefully be removed soon.</li>
 <li><a href="bad.html">Bad return values</a> - a list of distributions that don't return a valid return statement. You can consider this distributions buggy.</li>
 <li>By author - not implemented yet.
 <li>By return value - not implemented yet.

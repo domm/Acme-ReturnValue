@@ -15,9 +15,8 @@ use File::Temp qw(tempdir);
 use File::Path;
 use File::Copy;
 use Archive::Any;
-use URI::Escape;
-use Encode;
 use Data::Dumper;
+use YAML::Any qw(DumpFile); 
 
 use Moose;
 with qw(MooseX::Getopt);
@@ -271,15 +270,11 @@ sub in_dir {
     
     if ($self->interesting && @{$self->interesting}) {
         my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".dump");
-        my $fh = $dump->openw;
-        say $fh Dumper $self->interesting;
-        close $fh;
+        DumpFile($dump->stringify,$self->interesting);
     }
     if ($self->bad && @{$self->bad}) {
         my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".bad");
-        my $fh = $dump->openw;
-        say $fh Dumper $self->bad;
-        close $fh;
+        DumpFile($dump->stringify,$self->bad);
     }
 }
 
@@ -300,73 +295,6 @@ sub in_file {
         push (@{$self->failed},{file=>$file,error=>$@});
     }
 }
-
-=head3 generate_report_from_dump
-
-    $arv->generate_report_from_dump($dir);
-
-Get all Dump-Files in C<$dir>, eval them, and generate a HTML page 
-with the results.
-
-Will print directly to STDOUT, because I'm lazy ATM..
-
-=cut
-
-sub generate_report_from_dump {
-    my ($self)=@_;
-
-    my @interesting;
-    my $dir = Path::Class::Dir->new($self->in); 
-    
-    my %cool_dists;
-    my %bad_dists;
-    my %cool_rvs;
-    #my %authors;
-
-    while (my $file=$dir->next) {
-        next unless $file=~/^(?<dist>.*)\.(?<type>dump|bad)$/;
-        my $dist=$+{dist};
-        my $type=$+{type};
-    
-        my $VAR1;
-        eval $file->slurp;
-        my $data=$VAR1;
-        say $data->{PPI};
-    }
-
-    if (1==2) {
-
-    my $now=scalar localtime;
-    print <<"EOHTML";
-<html>
-<head><title>Acme::ReturnValue findings</title>
-<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
-</head>
-
-<body><h1>Acme::ReturnValue findings</h1>
-
-<p>Acme::ReturnValue: <a href="http://search.cpan.org/dist/Acme-ReturnValue">on CPAN</a> | <a href="http://domm.plix.at/talks/acme_returnvalue.html">talks about it</a><br>
-Contact: domm  AT cpan.org<br>
-Generated: $now
-</p>
-
-<dl>
-EOHTML
-    
-    foreach my $metayay (@interesting) {
-        foreach my $yay (@$metayay) {
-            my $val=$yay->{value};
-            $val=~s/>/&gt;/g;
-            $val=~s/</&lt;/g;
-            print "<dt>".$yay->{package}."</dt><dd>".encode('utf8',decode('latin1',$val))."</dd>\n";
-        }
-    }
-
-    print "</dl></body></html>";
-
-}
-}
-
 
 "let's return a strange value";
 

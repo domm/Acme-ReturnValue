@@ -4,6 +4,7 @@ package Acme::ReturnValue::MakeSite;
 use 5.010;
 use strict;
 use warnings;
+use version; our $VERSION = qv '0.70.0';
 
 use Path::Class qw();
 use URI::Escape;

@@ -4,7 +4,7 @@ package Acme::ReturnValue;
 use 5.010;
 use strict;
 use warnings;
-use version; our $VERSION = version->new( '0.06' );
+use version; our $VERSION = qv '0.70.0';
 
 use PPI;
 use File::Find;

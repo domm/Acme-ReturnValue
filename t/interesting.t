@@ -2,7 +2,6 @@
 use Test::Most tests => 12;
 use Acme::ReturnValue;
 
-
 {
     my $arv=Acme::ReturnValue->new;
     $arv->in_file('t/pms/Interesting.pm');

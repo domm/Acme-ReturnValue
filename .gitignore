@@ -12,6 +12,8 @@ pm_to_blib
 *.swp
 tmp/*
 cover_db
+LICENSE
+README
 MANIFEST.bak
 Acme-ReturnValue-*
 META.yml

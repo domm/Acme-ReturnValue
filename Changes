@@ -1,5 +1,12 @@
 Changes Acme::ReturnValue
 
+0.70.0 2009-05-13 09:20:18
+    - switched to Moose & MooseX::Getopt
+    - use YAML for serialization
+    - much better detection of false positves
+    - generate a sort-of-nice website
+
+
 0.05   Tue Mar  4 21:02:14 CET 2008
     - changed last-statement-finding implementation to the one from
       Perl::Critic::Policy::Modules::RequireEndWithOne

@@ -9,8 +9,9 @@ lib/Acme/ReturnValue.pm
 lib/Acme/ReturnValue/MakeSite.pm
 LICENSE
 MANIFEST			This list of files
+META.yml
 README
-t/00_load.t
+t/00-load.t
 t/boring.t
 t/interesting.t
 t/pms/Boring.pm

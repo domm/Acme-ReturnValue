@@ -129,6 +129,12 @@ sub run {
 
 }
 
+=head3 gen_cool_dists
+
+Generate the list of cool dists.
+
+=cut
+
 sub gen_cool_dists {
     my ($self, $cool,$dists,$letter,$letternav) = @_;
 
@@ -139,7 +145,7 @@ sub gen_cool_dists {
 
     say $fh $self->_html_header;
     say $fh <<EOCOOLINTRO;
-<h3>$count Cool Return Values $letter</h3>
+<h3>$count Cool Distributions $letter</h3>
 <p class="content">A list of distributions with not-boring return 
 values, sorted by name. </p>
 EOCOOLINTRO
@@ -156,6 +162,12 @@ EOCOOLINTRO
     close $fh;
 
 }
+
+=head3 gen_cool_values
+
+Generate the list of cool return values.
+
+=cut
 
 sub gen_cool_values {
     my ($self, $dists) = @_;
@@ -185,6 +197,12 @@ EOBADINTRO
     say $fh $self->_html_footer;
     close $fh;
 }
+
+=head3 gen_bad_dists
+
+Generate the list of bad dists.
+
+=cut
 
 sub gen_bad_dists {
     my ($self, $dists) = @_;
@@ -227,6 +245,12 @@ EOBADINTRO
     close $fh;
 
 }
+
+=head3 gen_index
+
+Generate the start page
+
+=cut
 
 sub gen_index {
     my $self = shift;

@@ -252,22 +252,22 @@ sub in_dir {
     $dumpname ||= $dir;
     $dumpname=~s/\//_/g;
 
-    say $dumpname unless $self->quiet; 
+    say $dumpname unless $self->quiet;
 
     $self->interesting([]);
     $self->bad([]);
     my @pms;
     find(sub {
         return unless /\.pm\z/;
-        return if $File::Find::dir=~/\/x?t\//;
-        return if $File::Find::dir=~/\/inc\//;
+        return if $File::Find::name=~/\/x?t\//;
+        return if $File::Find::name=~/\/inc\//;
         push(@pms,$File::Find::name);
     },$dir);
 
     foreach my $pm (@pms) {
         $self->in_file($pm);
     }
-    
+
     if ($self->interesting && @{$self->interesting}) {
         my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".dump");
         DumpFile($dump->stringify,$self->interesting);

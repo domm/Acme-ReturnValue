@@ -62,10 +62,16 @@ sub run {
         my $type=$+{type};
         $dist=~s/$datadir//;
         $dist=~s/^\///;
-        
-        my $data=LoadFile($file->stringify);
-        
-        foreach my $report (@$data) {
+        my $data;
+        eval {
+            $data = LoadFile($file->stringify);
+        };
+        if ($@) {
+            say "$file: $@";
+            next;
+        }
+        foreach my $rreport (@$data) {
+            my $report = { %$rreport };
             if ($report->{value}) {
                 $report->{value}=~s/\</&lt;/g;
                 $report->{value}=~s/\>/&gt;/g;

@@ -45,7 +45,7 @@ use Encode;
 
     my $data = $arv->interesting->[0];
     is($data->{package},'Acme::CPANAuthors::French','package');
-    is(decode_utf8($data->{value}),'q<
+    is($data->{value},'q<
     listen to 「陽の当たる月曜日」 by サエキけんぞう
     » http://www.myspace.com/cloclomadeinjapan
 >','utf8 value');

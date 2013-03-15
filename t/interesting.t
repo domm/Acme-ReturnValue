@@ -37,6 +37,22 @@ use Encode;
     is($data->{bad},q|*restore_time = \\&restore|,'value');
 }
 
+{
+    my $arv=Acme::ReturnValue->new;
+    $arv->in_file('t/pms/RT83963_encoding.pm');
+    cmp_deeply($arv->failed,[],'no failed');
+    cmp_deeply($arv->bad,[],'no interesting');
+
+    my $data = $arv->interesting->[0];
+    is($data->{package},'Acme::CPANAuthors::French','package');
+    is(decode_utf8($data->{value}),'q<
+    listen to 「陽の当たる月曜日」 by サエキけんぞう
+    » http://www.myspace.com/cloclomadeinjapan
+>','utf8 value');
+}
+
+done_testing();
+
 
 # invalid returns:
 # Test::MockTime

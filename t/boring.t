@@ -1,4 +1,4 @@
-#!perl -T
+#!/usr/bin/env perl
 use Test::Most;
 use Acme::ReturnValue;
 

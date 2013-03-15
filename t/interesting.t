@@ -1,6 +1,8 @@
-#!perl -T
-use Test::Most tests => 12;
+#!/usr/bin/env perl
+use Test::Most;
 use Acme::ReturnValue;
+use utf8;
+use Encode;
 
 {
     my $arv=Acme::ReturnValue->new;

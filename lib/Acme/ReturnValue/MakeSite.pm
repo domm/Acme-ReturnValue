@@ -276,9 +276,8 @@ sub gen_index {
 <ul class="content">
 <li><a href="values.html">Cool values</a> - all cool values, sorted by number of occurence in the CPAN</li>
 <li><a href="cool_A.html">Cool dists</a> - a list of distributions with not-boring return values. There still are some false positves hidden in here, which will hopefully be removed soon.</li>
-<li><a href="bad.html">Bad return values</a> - a list of distributions that don't return a valid return statement. You can consider this distributions buggy.</li>
+<li><a href="bad.html">Bad return values</a> - a list of distributions that don't return a valid return statement. You can consider this distributions (or Acme::ReturnValue) buggy.</li>
 <li>By author - not implemented yet.
-<li>By return value - not implemented yet.
 </ul>
 </p>
 
@@ -376,7 +375,7 @@ sub _html_header {
 <ul id="menubox" class="menu">
 <li><a href="index.html">About</a></li>
 <li><a href="values.html">Cool return values</a></li>
-<li><a href="cool_a.html">Cool dists</a></li>
+<li><a href="cool_A.html">Cool dists</a></li>
 <li><a href="bad.html">Bad return values</a></li>
 </ul>
 </div>

@@ -11,16 +11,20 @@ use URI::Escape;
 use Encode qw(from_to);
 use Data::Dumper;
 use Acme::ReturnValue;
-use YAML::Any qw(LoadFile);
 use Encode;
 use Moose;
+use JSON;
 with qw(MooseX::Getopt);
+use MooseX::Types::Path::Class;
 
 has 'now' => (is=>'ro',isa=>'Str',default => sub { scalar localtime});
 has 'quiet' => (is=>'ro',isa=>'Bool',default=>0);
-has 'data' => (is=>'ro',isa=>'Str',default=>'returnvalues');
-has 'out' => (is=>'ro',isa=>'Str',default=>'htdocs');
-
+has 'data' => (is=>'ro',isa=>'Path::Class::Dir',default=>'returnvalues',coerce=>1);
+has 'out' => (is=>'ro',isa=>'Path::Class::Dir',default=>'htdocs',coerce=>1);
+has 'json_decoder' => (is=>'ro',lazy_build=>1);
+sub _build_json_decoder {
+    return JSON->new;
+}
 
 =head1 NAME
 
@@ -48,28 +52,21 @@ sub run {
     my $self = shift;
 
     my @interesting;
-    my $datadir = $self->data;
-    my $dir = Path::Class::Dir->new($datadir); 
-    
+
     my %cool_dists;
     my %bad_dists;
     my %cool_rvs;
     #my %authors;
 
+    my $dir = $self->data;
     while (my $file=$dir->next) {
-        next unless $file=~/^(?<dist>.*)\.(?<type>dump|bad)$/;
+        next unless $file=~/\/(?<dist>.*)\.(?<type>interesting|bad).json$/;
         my $dist=$+{dist};
         my $type=$+{type};
-        $dist=~s/$datadir//;
         $dist=~s/^\///;
-        my $data;
-        eval {
-            $data = LoadFile($file->stringify);
-        };
-        if ($@) {
-            say "$file: $@";
-            next;
-        }
+
+        my $json = $file->slurp(iomode => '<:encoding(UTF-8)');
+        my $data = $self->json_decoder->decode($json);
         foreach my $rreport (@$data) {
             my $report = { %$rreport };
             if ($report->{value}) {
@@ -180,10 +177,10 @@ sub gen_cool_values {
     my ($self, $dists) = @_;
 
     my $out = Path::Class::Dir->new($self->out)->file('values.html');
-    my $fh = $out->openw;
+    my @print;
 
-    say $fh $self->_html_header;
-    say $fh <<EOBADINTRO;
+    push(@print,$self->_html_header);
+    push(@print,<<EOBADINTRO);
 <h3>Cool Return Values</h3>
 <p class="content">
 All cool values, sorted by number of occurence in the CPAN.
@@ -192,17 +189,17 @@ All cool values, sorted by number of occurence in the CPAN.
 <table>
 <tr><td>Return value</td><td>#</td><td>Package</td></tr>
 EOBADINTRO
-    
+
     foreach my $rv (
         map { $_->[1] }
         sort { $b->[0] <=> $a->[0] }
         map { [scalar @{$dists->{$_}},$_] } keys %$dists) {
-        say $fh $self->_html_cool_value($rv,$dists->{$rv});
+        push(@print,$self->_html_cool_value($rv,$dists->{$rv}));
     }
-    
-    say $fh "<table>";
-    say $fh $self->_html_footer;
-    close $fh;
+
+    push(@print,"<table>");
+    push(@print,$self->_html_footer);
+    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
 }
 
 =head3 gen_bad_dists
@@ -215,10 +212,10 @@ sub gen_bad_dists {
     my ($self, $dists) = @_;
 
     my $out = Path::Class::Dir->new($self->out)->file('bad.html');
-    my $fh = $out->openw;
+    my @print;
 
-    say $fh $self->_html_header;
-    say $fh <<EOBADINTRO;
+    push(@print,$self->_html_header);
+    push(@print,<<EOBADINTRO);
 <h3>Bad Return Values</h3>
 
 <p class="content">A list of distributions that don't return a valid 
@@ -230,27 +227,25 @@ return. To view the full bad return value, click on the
 EOBADINTRO
 
     my @bad = sort keys %$dists;
-    say $fh "<ul>";
+    push(@print,"<ul>");
     foreach my $type (@bad) {
         my $count = keys %{$dists->{$type}};
-        say $fh "<li><a href='#$type'>$type ($count dists)</li>";
+        push(@print,"<li><a href='#$type'>$type ($count dists)</li>");
     }
-    say $fh "</ul>";
+    push(@print,"</ul>");
     
     foreach my $type (sort keys %$dists) {
-        say $fh "<h3><a name='$type'>$type</a></h3>\n<table width='100%'>";
+        push(@print,"<h3><a name='$type'>$type</a></h3>\n<table width='100%'>");
         foreach my $dist (sort keys %{$dists->{$type}}) {
-            say $fh 
-            $self->_html_bad_dist($dist,$dists->{$type}{$dist});
+            push(@print, $self->_html_bad_dist($dist,$dists->{$type}{$dist}));
 
         }
-        say $fh "</table>";
+        push(@print,"</table>");
     }
     
-    say $fh "</table>";
-    say $fh $self->_html_footer;
-    close $fh;
-
+    push(@print,"</table>");
+    push(@print,$self->_html_footer);
+    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
 }
 
 =head3 gen_index
@@ -262,11 +257,11 @@ Generate the start page
 sub gen_index {
     my $self = shift;
     my $out = Path::Class::Dir->new($self->out)->file('index.html');
-    my $fh = $out->openw;
+    my @print;
     my $version = Acme::ReturnValue->VERSION;
 
-    say $fh $self->_html_header;
-    say $fh <<EOINDEX;
+    push(@print,$self->_html_header);
+    push(@print,<<EOINDEX);
 
 <p class="content">As you might know, all <a href="http://perl.org">Perl</a> packages are required to end with a true statement, usually '1'. But there are more interesting true values than plain old boring '1'. This site is dedicated to presenting to you those creative, funny, stupid or erroneous return values found on <a href="http://search.cpan.org">CPAN</a>.</p>
 
@@ -282,9 +277,8 @@ sub gen_index {
 </p>
 
 EOINDEX
-    say $fh $self->_html_footer;
-    close $fh;
-
+    push(@print,$self->_html_footer);
+    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
 
 }
 

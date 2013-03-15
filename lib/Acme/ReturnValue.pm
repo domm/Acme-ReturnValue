@@ -4,22 +4,22 @@ package Acme::ReturnValue;
 use 5.010;
 use strict;
 use warnings;
-use version; our $VERSION = qv '0.70.0';
+use version; our $VERSION = qv '1.000';
 
 use PPI;
 use File::Find;
 use Parse::CPAN::Packages;
 use Path::Class qw();
-use File::Spec::Functions;
 use File::Temp qw(tempdir);
 use File::Path;
 use File::Copy;
 use Archive::Any;
 use Data::Dumper;
-use YAML::Any qw(DumpFile); 
+use JSON;
 use Encode;
 use Moose;
 with qw(MooseX::Getopt);
+use MooseX::Types::Path::Class;
 
 has 'interesting' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
 has 'bad' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
@@ -27,10 +27,17 @@ has 'failed' => (is=>'rw',isa=>'ArrayRef',default=>sub {[]});
 
 has 'quiet' => (is=>'ro',isa=>'Bool',default=>0);
 has 'inc' => (is=>'ro',isa=>'Bool',default=>0);
-has 'dir' => (is=>'ro',isa=>'Str');
-has 'file' => (is=>'ro',isa=>'Str');
-has 'cpan' => (is=>'ro',isa=>'Str');
-has 'dump_to' => (is=>'ro',isa=>'Str',default=>'returnvalues');
+has 'dir' => (is=>'ro',isa=>'Path::Class::Dir',coerce=>1);
+has 'file' => (is=>'ro',isa=>'Path::Class::File',coerce=>1);
+has 'cpan' => (is=>'ro',isa=>'Path::Class::Dir',coerce=>1);
+has 'dump_to' => (is=>'ro',isa=>'Path::Class::Dir',coerce=>1,default=>'returnvalues');
+
+has 'json_encoder' => (is=>'ro',lazy_build=>1);
+sub _build_json_encoder {
+    return JSON->new->pretty;
+}
+
+
 
 $|=1;
 
@@ -64,7 +71,7 @@ run from the commandline (via F<acme_returnvalue.pl>
 
 sub run {
     my $self = shift;
-   
+
     if ($self->inc) {
         $self->in_INC;
     }
@@ -210,25 +217,23 @@ sub _is_code {
 sub in_CPAN {
     my ($self,$cpan,$out)=@_;
 
-    my $p=Parse::CPAN::Packages->new(catfile($cpan,qw(modules 02packages.details.txt.gz)));
+    my $p=Parse::CPAN::Packages->new($cpan->file(qw(modules 02packages.details.txt.gz))->stringify);
 
     if (!-d $out) {
-        mkpath($out) || die "cannot make dir $out";
+        $out->mkpath || die "cannot make dir $out";
     }
 
     foreach my $dist (sort {$a->dist cmp $b->dist} $p->latest_distributions) {
         my $data;
-        my $distfile = catfile($cpan,'authors','id',$dist->prefix);
+        my $distfile = $cpan->file('authors','id',$dist->prefix);
         $data->{file}=$distfile;
         my $dir;
         eval {
             $dir = tempdir('/var/tmp/arv_XXXXXX');
-        
-            my $archive=Archive::Any->new($distfile);
+            my $archive=Archive::Any->new($distfile->stringify) || die $!;
             $archive->extract($dir);
-            
+
             $self->in_dir($dir,$dist->distvname);
-             
         };
         if ($@) {
             print $@;
@@ -282,12 +287,12 @@ sub in_dir {
     }
 
     if ($self->interesting && @{$self->interesting}) {
-        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".dump");
-        DumpFile($dump->stringify,$self->interesting);
+        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".interesting.json");
+        $dump->spew(iomode => '>:encoding(UTF-8)', $self->json_encoder->encode($self->interesting));
     }
     if ($self->bad && @{$self->bad}) {
-        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".bad");
-        DumpFile($dump->stringify,$self->bad);
+        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".bad.json");
+        $dump->spew(iomode => '>:encoding(UTF-8)', $self->json_encoder->encode($self->bad));
     }
 }
 

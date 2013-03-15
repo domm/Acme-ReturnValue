@@ -75,18 +75,18 @@ sub run {
             if ($report->{value}) {
                 $report->{value}=~s/\</&lt;/g;
                 $report->{value}=~s/\>/&gt;/g;
-                from_to($report->{value},'latin1','utf8');
                 if(length($report->{value})>255) {
                     $report->{value}=substr($report->{value},0,255).'...';
                 }
             }
             if ($report->{bad}) {
-                $report->{bad}=~s/\</&lt;/g;
-                $report->{bad}=~s/\>/&gt;/g;
-                from_to($report->{bad},'latin1','utf8');
-                if(length($report->{bad})>255) {
-                    $report->{bad}=substr($report->{bad},0,255).'...';
+                my $bad = $report->{bad};
+                $bad=~s/\</&lt;/g;
+                $bad=~s/\>/&gt;/g;
+                if(length($bad)>255) {
+                    $bad=substr($bad,0,255).'...';
                 }
+                $report->{bad}=$bad;
             }
 
             if (length($report->{package})>40) {

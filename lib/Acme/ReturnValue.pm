@@ -17,7 +17,7 @@ use File::Copy;
 use Archive::Any;
 use Data::Dumper;
 use YAML::Any qw(DumpFile); 
-
+use Encode;
 use Moose;
 with qw(MooseX::Getopt);
 
@@ -127,13 +127,22 @@ because PPI dies on parse errors.
 =cut
 
 sub waste_some_cycles {
-    my ($self, $file) = @_;
-    my $doc = PPI::Document->new($file);
+    my ($self, $filename) = @_;
+
+    # slurp file
+    my $file = Path::Class::file($filename);
+    my $content = $file->slurp;
+    my $has_utf8;
+    if ($content=~/use utf8;/) {
+        $has_utf8=1;
+    }
+
+    my $doc = PPI::Document->new(\$content);
 
     eval {  # I don't care if that fails...
         $doc->prune('PPI::Token::Comment');
         $doc->prune('PPI::Token::Pod');
-    }; 
+    };
 
     my @packages=$doc->find('PPI::Statement::Package');
     my $this_package;
@@ -151,9 +160,13 @@ sub waste_some_cycles {
     $rv=~s/^return //gi;
 
     return if $rv eq 1;
-    
+
+    if ($has_utf8) {
+        $rv = decode_utf8($rv);
+    }
+
     my $data = {
-        'file'    => $file,
+        'file'    => $filename,
         'package' => $this_package,
         'PPI'     => ref $match,
     };
@@ -290,6 +303,7 @@ If L<waste_some_cycles> failed, puts information on the failing file into L<fail
 
 sub in_file {
     my ($self,$file)=@_;
+
     eval { $self->waste_some_cycles($file) };
     if ($@) {
         push (@{$self->failed},{file=>$file,error=>$@});

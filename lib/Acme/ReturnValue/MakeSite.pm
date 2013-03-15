@@ -12,7 +12,7 @@ use Encode qw(from_to);
 use Data::Dumper;
 use Acme::ReturnValue;
 use YAML::Any qw(LoadFile);
-
+use Encode;
 use Moose;
 with qw(MooseX::Getopt);
 
@@ -146,27 +146,27 @@ sub gen_cool_dists {
     my ($self, $cool,$dists,$letter,$letternav) = @_;
 
     my $out = Path::Class::Dir->new($self->out)->file('cool_'.$letter.'.html');
-    my $fh = $out->openw;
 
     my $count = keys %$cool;
+    my @print;
 
-    say $fh $self->_html_header;
-    say $fh <<EOCOOLINTRO;
+    push(@print,$self->_html_header);
+    push(@print,<<EOCOOLINTRO);
 <h3>$count Cool Distributions $letter</h3>
 <p class="content">A list of distributions with not-boring return 
 values, sorted by name. </p>
 EOCOOLINTRO
    
-    say $fh $letternav;
+    push(@print,$letternav);
 
-    say $fh "<table>";
+    push(@print,"<table>");
     foreach my $dist (sort @{$dists}) {
-        say $fh $self->_html_cool_dist($dist,$cool->{$dist});
+        push(@print,$self->_html_cool_dist($dist,$cool->{$dist}));
     }
     
-    say $fh "</table>";
-    say $fh $self->_html_footer;
-    close $fh;
+    push(@print,"</table>",$self->_html_footer);
+
+    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
 
 }
 

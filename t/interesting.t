@@ -41,7 +41,7 @@ use Encode;
     my $arv=Acme::ReturnValue->new;
     $arv->in_file('t/pms/RT83963_encoding.pm');
     cmp_deeply($arv->failed,[],'no failed');
-    cmp_deeply($arv->bad,[],'no interesting');
+    cmp_deeply($arv->bad,[],'no bad');
 
     my $data = $arv->interesting->[0];
     is($data->{package},'Acme::CPANAuthors::French','package');
@@ -51,8 +51,27 @@ use Encode;
 >','utf8 value');
 }
 
-done_testing();
+{
+    my $arv=Acme::ReturnValue->new;
+    $arv->in_file('t/pms/Envolve.pm');
+    cmp_deeply($arv->failed,[],'no failed');
+    cmp_deeply($arv->bad,[],'no bad');
+    cmp_deeply($arv->interesting,[],'no interesting');
 
+    my $data = $arv->interesting->[0];
+}
+
+{
+    my $arv=Acme::ReturnValue->new;
+    $arv->in_file('t/pms/TinyClick.pm');
+    cmp_deeply($arv->failed,[],'no failed');
+    cmp_deeply($arv->bad,[],'no bad');
+    my $data = $arv->interesting->[0];
+    is($data->{package},'WWW::Shorten::TinyClick','package');
+    is($data->{value},'0','interesting: 0');
+}
+
+done_testing();
 
 # invalid returns:
 # Test::MockTime

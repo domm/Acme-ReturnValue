@@ -37,10 +37,6 @@ sub _build_json_encoder {
     return JSON->new->pretty;
 }
 
-
-
-$|=1;
-
 =head1 NAME
 
 Acme::ReturnValue - report interesting module return values
@@ -51,12 +47,12 @@ Acme::ReturnValue - report interesting module return values
     my $rvs = Acme::ReturnValue->new;
     $rvs->in_INC;
     foreach (@{$rvs->interesting}) {
-        say $_->{package} . ' returns ' . $_->{value}; 
+        say $_->{package} . ' returns ' . $_->{value};
     }
 
 =head1 DESCRIPTION
 
-C<Acme::ReturnValue> will list 'interesting' return values of modules. 
+C<Acme::ReturnValue> will list 'interesting' return values of modules.
 'Interesting' means something other than '1'.
 
 =head2 METHODS
@@ -92,11 +88,11 @@ sub run {
     my $interesting=$self->interesting;
     if (@$interesting > 0) {
         foreach my $cool (@$interesting) {
-            print $cool->{package} .': '.$cool->{value} ."\n";
+            say $cool->{package} .': '.$cool->{value};
         }
     }
     else {
-        print "boring!\n";
+        say "boring!";
     }
 }
 
@@ -136,15 +132,7 @@ because PPI dies on parse errors.
 sub waste_some_cycles {
     my ($self, $filename) = @_;
 
-    # slurp file
-    my $file = Path::Class::file($filename);
-    my $content = $file->slurp;
-    my $has_utf8;
-    if ($content=~/use utf8;/) {
-        $has_utf8=1;
-    }
-
-    my $doc = PPI::Document->new(\$content);
+    my $doc = PPI::Document->new($filename);
 
     eval {  # I don't care if that fails...
         $doc->prune('PPI::Token::Comment');
@@ -167,10 +155,10 @@ sub waste_some_cycles {
     $rv=~s/^return //gi;
 
     return if $rv eq 1;
+    return if $rv eq '__PACKAGE__';
+    return if $rv =~ /^__PACKAGE__->meta->make_immutable/;
 
-    if ($has_utf8) {
-        $rv = decode_utf8($rv);
-    }
+    $rv = decode_utf8($rv);
 
     my $data = {
         'file'    => $filename,
@@ -236,7 +224,7 @@ sub in_CPAN {
             $self->in_dir($dir,$dist->distvname);
         };
         if ($@) {
-            print $@;
+            say $@;
         }
         rmtree($dir);
     }

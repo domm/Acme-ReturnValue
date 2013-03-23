@@ -69,7 +69,7 @@ sub run {
         my $data = $self->json_decoder->decode($json);
         foreach my $rreport (@$data) {
             my $report = { %$rreport };
-            if ($report->{value}) {
+            if (exists $report->{value}) {
                 $report->{value}=~s/\</&lt;/g;
                 $report->{value}=~s/\>/&gt;/g;
                 if(length($report->{value})>255) {

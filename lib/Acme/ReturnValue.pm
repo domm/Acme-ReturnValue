@@ -100,7 +100,7 @@ sub run {
 
     my $data = $arv->waste_some_cycles( '/some/module.pm' );
 
-C<waste_some_cycles> parses the passed in file using PPI. It tries to 
+C<waste_some_cycles> parses the passed in file using PPI. It tries to
 get the last statement and extract it's value.
 
 C<waste_some_cycles> returns a hash with following keys
@@ -111,7 +111,7 @@ C<waste_some_cycles> returns a hash with following keys
 
 The file
 
-=item * package 
+=item * package
 
 The package defintion (the first one encountered in the file
 
@@ -121,10 +121,10 @@ The return value of that file
 
 =back
 
-C<waste_some_cycles> will also put this data structure into 
+C<waste_some_cycles> will also put this data structure into
 L<interesting> or L<boring>.
 
-You might want to pack calls to C<waste_some_cycles> into an C<eval> 
+You might want to pack calls to C<waste_some_cycles> into an C<eval>
 because PPI dies on parse errors.
 
 =cut
@@ -199,6 +199,8 @@ sub _is_code {
 }
 
 =head3 in_CPAN
+
+Analyse CPAN. Needs a local CPAN mirror
 
 =cut
 
@@ -348,7 +350,7 @@ Probably many, because I'm not sure I master PPI yet.
 
 Thomas Klausner, C<< <domm@cpan.org> >>
 
-Thanks to Armin Obersteiner and Josef Schmid for input during very 
+Thanks to Armin Obersteiner and Josef Schmid for input during very
 early development
 
 =head1 BUGS

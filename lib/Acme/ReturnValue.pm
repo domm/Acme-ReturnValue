@@ -211,7 +211,18 @@ sub in_CPAN {
         $out->mkpath || die "cannot make dir $out";
     }
 
+    # get all old data files so we can later delete non-current
+    my %old_files;
+    while (my $file = $out->next) {
+        next unless $file =~ /\.json/;
+        $old_files{$file->basename}=1;
+    }
+
+    # analyse cpan
     foreach my $dist (sort {$a->dist cmp $b->dist} $p->latest_distributions) {
+        delete $old_files{$dist->distvname.'.json'};
+        next if (-e $out->file($dist->distvname.'.json'));
+
         my $data;
         my $distfile = $cpan->file('authors','id',$dist->prefix);
         $data->{file}=$distfile;
@@ -228,6 +239,12 @@ sub in_CPAN {
         }
         rmtree($dir);
     }
+
+    # remove old data files
+    foreach my $del (keys %old_files) {
+        unlink($out->file($del)) || die $!;
+    }
+
 }
 
 =head3 in_INC
@@ -274,13 +291,15 @@ sub in_dir {
         $self->in_file($pm);
     }
 
+    my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".json");
     if ($self->interesting && @{$self->interesting}) {
-        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".interesting.json");
         $dump->spew(iomode => '>:encoding(UTF-8)', $self->json_encoder->encode($self->interesting));
     }
-    if ($self->bad && @{$self->bad}) {
-        my $dump=Path::Class::Dir->new($self->dump_to)->file($dumpname.".bad.json");
+    elsif ($self->bad && @{$self->bad}) {
         $dump->spew(iomode => '>:encoding(UTF-8)', $self->json_encoder->encode($self->bad));
+    }
+    else {
+        $dump->spew('{"is_boring":"1"}');
     }
 }
 

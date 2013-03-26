@@ -58,15 +58,19 @@ sub run {
     my %cool_rvs;
     #my %authors;
 
+    if (!-d $self->out) {
+        $self->out->mkpath || die "cannot make dir ".$self->out;
+    }
+
     my $dir = $self->data;
     while (my $file=$dir->next) {
-        next unless $file=~/\/(?<dist>.*)\.(?<type>interesting|bad).json$/;
+        next unless $file=~/\/(?<dist>.*)\.json$/;
         my $dist=$+{dist};
-        my $type=$+{type};
         $dist=~s/^\///;
 
         my $json = $file->slurp(iomode => '<:encoding(UTF-8)');
         my $data = $self->json_decoder->decode($json);
+        next if ref($data) eq 'HASH' && $data->{is_boring};
         foreach my $rreport (@$data) {
             my $report = { %$rreport };
             if (exists $report->{value}) {

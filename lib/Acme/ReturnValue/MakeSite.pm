@@ -192,14 +192,15 @@ All cool values, sorted by number of occurence in the CPAN.
 </p>
 
 <table>
-<tr><td>Return value</td><td>#</td><td>Package</td></tr>
+<tr><td>Count</td><td>Return value</td><td>Packages</td></tr>
 EOBADINTRO
 
+    my $cnt=1;
     foreach my $rv (
         map { $_->[1] }
         sort { $b->[0] <=> $a->[0] }
         map { [scalar @{$dists->{$_}},$_] } keys %$dists) {
-        push(@print,$self->_html_cool_value($rv,$dists->{$rv}));
+        push(@print,$self->_html_cool_value($rv,$dists->{$rv},'cv_'.$cnt++));
     }
 
     push(@print,"<table>");
@@ -312,21 +313,13 @@ sub _html_cool_dist {
 }
 
 sub _html_cool_value {
-    my ($self, $value, $report) = @_;
+    my ($self, $value, $report, $id) = @_;
     my $html;
     my $count = @$report;
-    my $first=1;;
-    foreach my $ele (@$report) {
-        if ($first) {
-            $html.="<tr><td>$value</td><td>$count</td>";
-            $first=0;
-        }
-        else {
-            $html.="<tr><td></td><td></td>";
-        }
-        $html.="<td>".$self->_link_search_package($ele->{package})."</td>";
-        $html.="</tr>\n";
-    }
+    $html = qq[<tr><td>$count</td><td>$value</td><td><a href="javascript:void(0)" onclick="] . q[$('#]. $id. q[').toggle()">show</td></td></tr>].
+qq[<tr id='$id' style='display:none' ><td></td><td colspan=2>];
+    $html .= join("<br>\n",map { $self->_link_search_package($_->{package},'nobr') } @$report);
+    $html .= "</td></tr>";
     return $html;
 }
 
@@ -352,7 +345,11 @@ sub _link_dist {
 }
 
 sub _link_search_package {
-    my ($self, $package) = @_;
+    my ($self, $package, $nobr) = @_;
+    if ($nobr) {
+        $package=~s/\s*<br>\s*//g;
+        $package=~s/&nbsp;//g;
+    }
     return "<a href='http://search.cpan.org/search?query=$package&mode=module'>$package</a>";
 }
 

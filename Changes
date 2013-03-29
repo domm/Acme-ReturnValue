@@ -1,5 +1,18 @@
 Changes Acme::ReturnValue
 
+1.000   2013-03-26T22:30:33+0100
+    - more compact cool values list (Thomas Klausner)
+    - dist::zilla (Thomas Klausner)
+    - whitespace/docs (Thomas Klausner)
+    - keep track of files/dists analysed, only one json output file (Thomas Klausner)
+    - ignore __PACKAGE__ and make_immutable (Thomas Klausner)
+    - encode now happens in code, so remove it from t (Thomas Klausner)
+    - switched to JSON, more Path::Class (Thomas Klausner)
+    - use ->spew to write data (Thomas Klausner)
+    - proper utf8 fix (RT83963_UTF8_broken) (Thomas Klausner)
+    - added utf8 test case (spotted by saper)
+
+
 0.70.0 2009-05-13 09:20:18
     - switched to Moose & MooseX::Getopt
     - use YAML for serialization
@@ -18,9 +31,9 @@ Changes Acme::ReturnValue
 
 0.04   Sat Mar  1 00:28:16 CET 2008
     - live from the Dutch Perl Workshop 2008!
-    - in_CPAN now forks a new acme_returnvalue.pl to fight memory 
+    - in_CPAN now forks a new acme_returnvalue.pl to fight memory
       leaks
-      
+
 
 0.03  Fri Feb 29 14:15:47 CET 2008
     - live from the Dutch Perl Workshop 2008!

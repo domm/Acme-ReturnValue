@@ -4,7 +4,8 @@ package Acme::ReturnValue::MakeSite;
 use 5.010;
 use strict;
 use warnings;
-use version; our $VERSION = qv '0.70.0';
+
+# ABSTRACT: generate returnvalues.useperl.at
 
 use Path::Class qw();
 use URI::Escape;
@@ -395,7 +396,6 @@ Version: $version<br>
 </body></html>
 EOHTMLFOOT
 }
-
 
 "let's generate another stupid website";
 

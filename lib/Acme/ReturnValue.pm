@@ -4,7 +4,9 @@ package Acme::ReturnValue;
 use 5.010;
 use strict;
 use warnings;
-use version; our $VERSION = qv '1.000';
+our $VERSION = '1.000';
+
+# ABSTRACT: report interesting return values
 
 use PPI;
 use File::Find;

@@ -91,8 +91,9 @@ sub run {
                 $report->{bad}=$bad;
             }
 
-            if (length($report->{package})>40) {
-                my @p=split(/::/,$report->{package});
+            $report->{package_br} = $report->{package};
+            if (length($report->{package_br})>40) {
+                my @p=split(/::/,$report->{package_br});
                 my @lines;
                 my $line = shift(@p);
                 foreach my $frag (@p) {
@@ -102,9 +103,8 @@ sub run {
                         $line='';
                     }
                 }
-                
                 push (@lines,$line) if $line;
-                $report->{package}=join("<br>&nbsp;&nbsp;&nbsp;",@lines);
+                $report->{package_br}=join("<br>&nbsp;&nbsp;&nbsp;",@lines);
             }
             if ($report->{value}) {
                 push(@{$cool_dists{$dist}},$report);
@@ -299,9 +299,9 @@ sub _html_cool_dist {
 
     foreach my $ele (@$report) {
         my $val=$ele->{'value'};
-       
+
         if ($count>1) {
-            $html.="<tr><td class='package'>".$ele->{package}."</td>";
+            $html.="<tr><td class='package'>".$ele->{package_br}."</td>";
         }
         else {
             $html.="<tr><td colspan>".$self->_link_dist($dist)."</td>";

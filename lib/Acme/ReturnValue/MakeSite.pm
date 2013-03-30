@@ -123,7 +123,7 @@ sub run {
     }
     my $letternav = "<ul class='menu'>";
     foreach my $letter (sort keys %by_letter) {
-        $letternav.="<li><a href='cool_$letter.html'>$letter</li>";
+        $letternav.="<li><a href='cool_$letter.html'>$letter</a></li>";
     }
     $letternav.="</ul>";
     foreach my $letter (sort keys %by_letter) {

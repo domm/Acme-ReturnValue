@@ -39,10 +39,6 @@ sub _build_json_encoder {
     return JSON->new->pretty;
 }
 
-=head1 NAME
-
-Acme::ReturnValue - report interesting module return values
-
 =head1 SYNOPSIS
 
     use Acme::ReturnValue;
@@ -56,6 +52,8 @@ Acme::ReturnValue - report interesting module return values
 
 C<Acme::ReturnValue> will list 'interesting' return values of modules.
 'Interesting' means something other than '1'.
+
+See L<http://returnvalues.useperl.at|http://returnvalues.useperl.at> for the results of running Acme::ReturnValue on the whole CPAN.
 
 =head2 METHODS
 
@@ -347,26 +345,5 @@ Returns an ARRAYREF containing unparsable modules.
 =head1 BUGS
 
 Probably many, because I'm not sure I master PPI yet.
-
-=head1 AUTHOR
-
-Thomas Klausner, C<< <domm@cpan.org> >>
-
-Thanks to Armin Obersteiner and Josef Schmid for input during very
-early development
-
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-acme-returnvalue@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org>.  I will be notified, and then you'll automatically
-be notified of progress on your bug as I make changes.
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008 Thomas Klausner
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut

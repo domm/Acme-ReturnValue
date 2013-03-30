@@ -27,14 +27,10 @@ sub _build_json_decoder {
     return JSON->new;
 }
 
-=head1 NAME
-
-Acme::ReturnValue::MakeSite - generate some HTML pages
-
 =head1 SYNOPSIS
 
     acme_returnvalue_makesite.pl --data path/to/dir
-    
+
 =head1 DESCRIPTION
 
 Generate a small site based on the findings of L<Acme::ReturnValue>
@@ -407,21 +403,3 @@ EOHTMLFOOT
 
 "let's generate another stupid website";
 
-__END__
-
-
-=head1 BUGS
-
-Please report any bugs or feature requests to
-C<bug-acme-returnvalue@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org>.  I will be notified, and then you'll automatically
-be notified of progress on your bug as I make changes.
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2009 Thomas Klausner
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-=cut

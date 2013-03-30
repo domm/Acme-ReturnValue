@@ -1,6 +1,8 @@
 Changes Acme::ReturnValue
 
 1.000   2013-03-26T22:30:33+0100
+    - added disqus comments (Thomas Klausner)
+    - sort packages (Thomas Klausner)
     - more compact cool values list (Thomas Klausner)
     - dist::zilla (Thomas Klausner)
     - whitespace/docs (Thomas Klausner)

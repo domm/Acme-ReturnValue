@@ -318,7 +318,7 @@ sub _html_cool_value {
     my $count = @$report;
     $html = qq[<tr><td>$count</td><td>$value</td><td><a href="javascript:void(0)" onclick="] . q[$('#]. $id. q[').toggle()">show</td></td></tr>].
 qq[<tr id='$id' style='display:none' ><td></td><td colspan=2>];
-    $html .= join("<br>\n",map { $self->_link_search_package($_->{package},'nobr') } @$report);
+    $html .= join("<br>\n",map { $self->_link_search_package($_->{package}) } sort { $a->{package} cmp $b->{package} } @$report);
     $html .= "</td></tr>";
     return $html;
 }

@@ -345,11 +345,7 @@ sub _link_dist {
 }
 
 sub _link_search_package {
-    my ($self, $package, $nobr) = @_;
-    if ($nobr) {
-        $package=~s/\s*<br>\s*//g;
-        $package=~s/&nbsp;//g;
-    }
+    my ($self, $package) = @_;
     return "<a href='http://search.cpan.org/search?query=$package&mode=module'>$package</a>";
 }
 

@@ -53,7 +53,7 @@ sub _build_json_encoder {
 C<Acme::ReturnValue> will list 'interesting' return values of modules.
 'Interesting' means something other than '1'.
 
-See L<http://returnvalues.useperl.at|http://returnvalues.useperl.at> for the results of running Acme::ReturnValue on the whole CPAN.
+See L<https://returnvalues.plix.at|https://returnvalues.plix.at> for the results of running Acme::ReturnValue on the whole CPAN.
 
 =head2 METHODS
 

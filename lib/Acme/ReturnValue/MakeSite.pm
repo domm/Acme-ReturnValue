@@ -223,7 +223,7 @@ sub gen_bad_dists {
 <p class="content">A list of distributions that don't return a valid 
 return statement. You can consider this distributions buggy. This list 
 is further broken down into the type of <a 
-href="http://search.cpan.org/dist/PPI">PPI::Statement</a> class they 
+href="https://metacpan.org/pod/PPI">PPI::Statement</a> class they 
 return. To view the full bad return value, click on the 
 'show'-link.</p>
 EOBADINTRO
@@ -265,9 +265,9 @@ sub gen_index {
     push(@print,$self->_html_header);
     push(@print,<<EOINDEX);
 
-<p class="content">As you might know, all <a href="http://perl.org">Perl</a> packages are required to end with a true statement, usually '1'. But there are more interesting true values than plain old boring '1'. This site is dedicated to presenting to you those creative, funny, stupid or erroneous return values found on <a href="http://search.cpan.org">CPAN</a>.</p>
+<p class="content">As you might know, all <a href="https://perl.org">Perl</a> packages are required to end with a true statement, usually '1'. But there are more interesting true values than plain old boring '1'. This site is dedicated to presenting to you those creative, funny, stupid or erroneous return values found on <a href="https://metacpan.org">CPAN</a>.</p>
 
-<p class="content">This site is created using <a href="http://search.cpan.org/dist/Acme-ReturnValue">Acme::ReturnValue $version</a> by <a href="http://domm.plix.at">Thomas Klausner</a> on irregular intervals (but setting up a cron-job is on the TODO...). There are some <a href="http://domm.plix.at/talks/acme_returnvalue.html">slides of talks</a> available with a tiny bit more background.</p>
+<p class="content">This site is created using <a href="https://metacpan.org/pod/Acme::ReturnValue">Acme::ReturnValue $version</a> by <a href="https://domm.plix.at">Thomas Klausner (domm)</a> on irregular intervals (but setting up a cron-job is on the TODO (for 10 years..)...). There are some <a href="https://domm.plix.at/talks/acme_returnvalue.html">slides of talks</a> available with a tiny bit more background.</p>
 
 <p class="content">At the moment, there are the following reports:
 <ul class="content">
@@ -336,12 +336,14 @@ sub _html_bad_dist {
 
 sub _link_dist {
     my ($self, $dist) = @_;
-    return "<a href='http://search.cpan.org/dist/$dist'>$dist</a>";
+    my $distlink = $dist;
+    $distlink=~s/-[\d\.]+$//;
+    return "<a href='https://metacpan.org/release/$distlink'>$dist</a>";
 }
 
 sub _link_search_package {
     my ($self, $package) = @_;
-    return "<a href='http://search.cpan.org/search?query=$package&mode=module'>$package</a>";
+    return "<a href='https://metacpan.org/pod/$package'>$package</a>";
 }
 
 sub _html_header {
@@ -374,23 +376,8 @@ sub _html_footer {
     my $now = $self->now;
     my $version = Acme::ReturnValue->VERSION;
     return <<"EOHTMLFOOT";
-<div class="comments">
-    <h3>Comments</h3>
-    <div id="disqus_thread"></div>
-    <script type="text/javascript">
-        var disqus_shortname = 'acmereturnvalues';
-        var disqus_identifier='same_comments_everywhere';
-        (function() {
-            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-
-</div>
 <div class="footer">
-<p>Acme::ReturnValue: <a href="http://search.cpan.org/dist/Acme-ReturnValue">on CPAN</a> | <a href="http://domm.plix.at/talks/acme_returnvalue.html">talks about it</a><br>
+<p>Acme::ReturnValue: <a href="https://metacpan.org/pod/Acme-ReturnValue">on CPAN</a> | <a href="https://domm.plix.at/talks/acme_returnvalue.html">talks about it</a><br>
 Contact: domm  AT cpan.org<br>
 Generated: $now<br>
 Version: $version<br>

@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-# ABSTRACT: generate returnvalues.useperl.at
+# ABSTRACT: generate returnvalues.plix.at
 
 use Path::Class qw();
 use URI::Escape;

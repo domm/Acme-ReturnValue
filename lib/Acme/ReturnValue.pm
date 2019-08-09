@@ -4,7 +4,7 @@ package Acme::ReturnValue;
 use 5.010;
 use strict;
 use warnings;
-our $VERSION = '1.001';
+our $VERSION = '1.002';
 
 # ABSTRACT: report interesting return values
 

@@ -18,3 +18,5 @@ MANIFEST.bak
 Acme-ReturnValue-*
 META.yml
 htdocs/*.html
+local
+returnvalues

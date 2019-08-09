@@ -164,7 +164,7 @@ EOCOOLINTRO
     
     push(@print,"</table>",$self->_html_footer);
 
-    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
+    $out->spew(iomode => '>:encoding(UTF-8)', \@print );
 
 }
 
@@ -201,7 +201,7 @@ EOBADINTRO
 
     push(@print,"<table>");
     push(@print,$self->_html_footer);
-    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
+    $out->spew(iomode => '>:encoding(UTF-8)', \@print);
 }
 
 =head3 gen_bad_dists
@@ -247,7 +247,7 @@ EOBADINTRO
     
     push(@print,"</table>");
     push(@print,$self->_html_footer);
-    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
+    $out->spew(iomode => '>:encoding(UTF-8)', \@print);
 }
 
 =head3 gen_index
@@ -280,8 +280,7 @@ sub gen_index {
 
 EOINDEX
     push(@print,$self->_html_footer);
-    $out->spew(iomode => '>:encoding(UTF-8)', [map { decode_utf8($_) } @print]);
-
+    $out->spew(iomode => '>:encoding(UTF-8)', \@print);
 }
 
 sub _html_cool_dist {

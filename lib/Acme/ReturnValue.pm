@@ -324,7 +324,7 @@ sub in_file {
     }
 }
 
-"let's return a strange value";
+"let's return a strange value from Riga";
 
 __END__
 

@@ -4,7 +4,7 @@ Acme::ReturnValue - report interesting return values
 
 # VERSION
 
-version 1.002
+version 1.003
 
 # SYNOPSIS
 

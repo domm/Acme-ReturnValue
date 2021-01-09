@@ -6,7 +6,7 @@ use Acme::ReturnValue::MakeSite;
 
 # ABSTRACT: run Acme::ReturnValue::MakeSite
 # PODNAME: acme_returnvalue_makesite.pl
-
+# VERSION
 
 Acme::ReturnValue::MakeSite->new_with_options->run;
 

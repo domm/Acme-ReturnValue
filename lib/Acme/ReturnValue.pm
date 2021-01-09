@@ -1,12 +1,11 @@
-#!/usr/bin/perl
 package Acme::ReturnValue;
+
+# ABSTRACT: report interesting return values
+# VERSION
 
 use 5.010;
 use strict;
 use warnings;
-our $VERSION = '1.003';
-
-# ABSTRACT: report interesting return values
 
 use PPI;
 use File::Find;

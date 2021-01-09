@@ -4,7 +4,7 @@ Acme::ReturnValue - report interesting return values
 
 # VERSION
 
-version 1.003
+version 1.004
 
 # SYNOPSIS
 
@@ -104,11 +104,11 @@ Probably many, because I'm not sure I master PPI yet.
 
 # AUTHOR
 
-Thomas Klausner <domm@cpan.org>
+Thomas Klausner <domm@plix.at>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 - 2019 by Thomas Klausner.
+This software is copyright (c) 2013 - 2021 by Thomas Klausner.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

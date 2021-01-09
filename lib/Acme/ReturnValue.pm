@@ -19,6 +19,8 @@ use Data::Dumper;
 use JSON;
 use Encode;
 use Moose;
+use List::Util qw(any);
+
 with qw(MooseX::Getopt);
 use MooseX::Types::Path::Class;
 
@@ -167,7 +169,7 @@ sub waste_some_cycles {
 
     my @bad = map { 'PPI::Statement::'.$_} qw(Sub Variable Compound Package Scheduled Include Sub);
 
-    if (ref($match) ~~ @bad) {
+    if (any { ref($match) eq $_ } @bad) {
         $data->{'bad'}=$rv;
         push(@{$self->bad},$data);
     }

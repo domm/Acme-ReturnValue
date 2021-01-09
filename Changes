@@ -1,7 +1,8 @@
 Changes Acme::ReturnValue
 
 {{$NEXT}}
-
+    - remove smartmatch
+    - dist housekeeping, Dist::Zilla::PluginBundle::Author::DOMM
 
 1.003   2019-08-12T18:21:15
     - fix botched cpanfile via dist.ini

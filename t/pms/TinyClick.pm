@@ -5,7 +5,6 @@ use strict;
 use warnings;
 
 our $VERSION = '1.90';
-require WWW::Shorten::_dead;
 
 0;
 

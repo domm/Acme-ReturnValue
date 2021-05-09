@@ -38,7 +38,6 @@ on 'test' => sub {
   requires "Test::Most" => "0";
   requires "Time::Piece" => "0";
   requires "URI::file" => "0";
-  requires "WWW::Shorten::_dead" => "0";
   requires "XML::LibXML" => "0";
 };
 

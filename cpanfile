@@ -24,28 +24,14 @@ on 'build' => sub {
 };
 
 on 'test' => sub {
-  requires "Acme::CPANAuthors::Register" => "0";
-  requires "Any::Moose" => "0";
-  requires "Carp" => "0";
-  requires "Digest::HMAC_SHA1" => "0";
-  requires "Exporter" => "0";
   requires "File::Spec" => "0";
   requires "File::Temp" => "0";
   requires "IO::Handle" => "0";
   requires "IPC::Open3" => "0";
-  requires "MIME::Base64" => "0";
   requires "Test::More" => "0";
   requires "Test::Most" => "0";
-  requires "Time::Piece" => "0";
-  requires "URI::file" => "0";
-  requires "WWW::Shorten::_dead" => "0";
-  requires "XML::LibXML" => "0";
 };
 
 on 'configure' => sub {
   requires "Module::Build" => "0.28";
-};
-
-on 'develop' => sub {
-  requires "Test::More" => "0";
 };
